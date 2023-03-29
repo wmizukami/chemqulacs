@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "install dependencies",
+            "type": "shell",
+            "command": "poetry install"
+        },
+        {
+            "label": "update dependencies",
+            "detail": "Update version of installed dependencies",
+            "type": "shell",
+            "command": "poetry update"
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "make test"
+        },
+        {
+            "label": "check",
+            "detail": "Check format, lint and type",
+            "type": "shell",
+            "command": "make check",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "label": "doc",
+            "detail": "Build document",
+            "type": "shell",
+            "command": "make doc"
+        },
+        {
+            "label": "serve",
+            "detail": "Build document and serve it at localhost:8000",
+            "type": "shell",
+            "command": "make serve"
+        }
+    ]
+} 
