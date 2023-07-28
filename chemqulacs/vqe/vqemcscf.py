@@ -43,6 +43,9 @@ class VQECASCI(casci.CASCI):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
+            singlet_excitation (bool):
+                If ``True``, the ansatz will be spin symmetric. Used for ``UCCSD`` and
+                ``KUpCCGSD``.
             is_init_random (bool):
                 If ``False``, initial parameters are initialized to 0s, else, initialized randomly.
             seeed (int):
@@ -68,6 +71,7 @@ class VQECASCI(casci.CASCI):
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
+        singlet_excitation: bool = False,
         is_init_random: bool = False,
         seed: int = 0,
     ):
@@ -85,6 +89,7 @@ class VQECASCI(casci.CASCI):
             include_pi=include_pi,
             use_singles=use_singles,
             delta_sz=delta_sz,
+            singlet_excitation=singlet_excitation,
             is_init_random=is_init_random,
             seed=seed,
         )
@@ -118,6 +123,9 @@ class VQECASSCF(mc1step.CASSCF):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
+            singlet_excitation (bool):
+                If ``True``, the ansatz will be spin symmetric. Used for ``UCCSD`` and
+                ``KUpCCGSD``.
             is_init_random (bool):
                 If ``False``, initial parameters are initialized to 0s, else, initialized randomly.
             seeed (int):
@@ -144,6 +152,7 @@ class VQECASSCF(mc1step.CASSCF):
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
+        singlet_excitation: bool = False,
         is_init_random: bool = False,
         seed: int = 0,
     ):
@@ -161,6 +170,7 @@ class VQECASSCF(mc1step.CASSCF):
             include_pi=include_pi,
             use_singles=use_singles,
             delta_sz=delta_sz,
+            singlet_excitation=singlet_excitation,
             is_init_random=is_init_random,
             seed=seed,
         )

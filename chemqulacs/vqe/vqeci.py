@@ -51,6 +51,7 @@ from quri_parts.core.state import (
     ParametricCircuitQuantumState,
 )
 from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterSingletUCCSD
+# from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterUCCSD
 from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
@@ -269,6 +270,7 @@ def _create_ansatz(
     include_pi: bool,
     use_singles: bool,
     delta_sz: int,
+    singlet_excitation: bool,
 ) -> LinearMappedUnboundParametricQuantumCircuit:
     n_qubits = fermion_qubit_mapping.n_qubits_required(n_sorbs)
     if ansatz == Ansatz.HardwareEfficient:
@@ -287,10 +289,30 @@ def _create_ansatz(
         return TrotterSingletUCCSD(
             n_sorbs, n_electrons, fermion_qubit_mapping, trotter_number, use_singles
         )
+        # To be replaced with below
+        # return TrotterUCCSD(
+        #     n_sorbs,
+        #     n_electrons,
+        #     fermion_qubit_mapping,
+        #     trotter_number,
+        #     use_singles,
+        #     delta_sz,
+        #     singlet_excitation,
+        # )
     elif ansatz == Ansatz.KUpCCGSD:
         return KUpCCGSD(
             n_sorbs, n_electrons, k, fermion_qubit_mapping, trotter_number, delta_sz
         )
+        # To be replaced with below
+        # return KUpCCGSD(
+        #     n_sorbs,
+        #     n_electrons,
+        #     k,
+        #     fermion_qubit_mapping,
+        #     trotter_number,
+        #     delta_sz,
+        #     singlet_excitation,
+        # )
 
 
 def vqe(init_params, cost_fn, grad_fn, optimizer):
@@ -331,6 +353,9 @@ class VQECI(object):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
+            singlet_excitation (bool):
+                If ``True``, the ansatz will be spin symmetric. Used for ``UCCSD`` and
+                ``KUpCCGSD``.
             is_init_random (bool):
                 If ``False``, initial parameters are initialized to 0s, else, initialized randomly.
             seeed (int):
@@ -354,6 +379,7 @@ class VQECI(object):
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
+        singlet_excitation: bool = False,
         is_init_random: bool = False,
         seed: int = 0,
     ):
@@ -374,6 +400,7 @@ class VQECI(object):
         self.include_pi: bool = include_pi
         self.use_singles: bool = use_singles
         self.delta_sz: int = delta_sz
+        self.singlet_excitation: bool = singlet_excitation
         self.is_init_random: bool = is_init_random
         self.seed: int = seed
         self.e = 0
@@ -418,6 +445,7 @@ class VQECI(object):
             self.include_pi,
             self.use_singles,
             self.delta_sz,
+            self.singlet_excitation,
         )
         # Create parametric state
         param_circuit = LinearMappedUnboundParametricQuantumCircuit(self.n_qubit)
