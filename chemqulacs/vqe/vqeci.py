@@ -50,9 +50,7 @@ from quri_parts.core.state import (
     CircuitQuantumState,
     ParametricCircuitQuantumState,
 )
-from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterSingletUCCSD
-
-# from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterUCCSD
+from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterUCCSD
 from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
@@ -287,33 +285,25 @@ def _create_ansatz(
     elif ansatz == Ansatz.GateFabric:
         return GateFabric(n_qubits, layers, include_pi)
     elif ansatz == Ansatz.UCCSD:
-        return TrotterSingletUCCSD(
-            n_sorbs, n_electrons, fermion_qubit_mapping, trotter_number, use_singles
+        return TrotterUCCSD(
+            n_sorbs,
+            n_electrons,
+            fermion_qubit_mapping,
+            trotter_number,
+            use_singles,
+            delta_sz,
+            singlet_excitation,
         )
-        # To be replaced with below
-        # return TrotterUCCSD(
-        #     n_sorbs,
-        #     n_electrons,
-        #     fermion_qubit_mapping,
-        #     trotter_number,
-        #     use_singles,
-        #     delta_sz,
-        #     singlet_excitation,
-        # )
     elif ansatz == Ansatz.KUpCCGSD:
         return KUpCCGSD(
-            n_sorbs, n_electrons, k, fermion_qubit_mapping, trotter_number, delta_sz
+            n_sorbs,
+            n_electrons,
+            k,
+            fermion_qubit_mapping,
+            trotter_number,
+            delta_sz,
+            singlet_excitation,
         )
-        # To be replaced with below
-        # return KUpCCGSD(
-        #     n_sorbs,
-        #     n_electrons,
-        #     k,
-        #     fermion_qubit_mapping,
-        #     trotter_number,
-        #     delta_sz,
-        #     singlet_excitation,
-        # )
 
 
 def vqe(init_params, cost_fn, grad_fn, optimizer):
