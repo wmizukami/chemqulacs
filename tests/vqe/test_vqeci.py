@@ -37,6 +37,7 @@ from chemqulacs.vqe.vqeci import (
     _get_active_hamiltonian,
 )
 
+
 def vqeci() -> VQECI:
     n_qubits = 8
     n_electrons = 4
