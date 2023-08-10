@@ -363,7 +363,6 @@ class VQECI(object):
         backend: Backend = QulacsBackend(),
         shots_per_iter: int = 10000,
         ansatz: Ansatz = Ansatz.ParticleConservingU1,
-        reps: int = 1,
         layers: int = 2,
         k: int = 1,
         trotter_number: int = 1,
@@ -384,7 +383,6 @@ class VQECI(object):
         self.ansatz: Ansatz = ansatz
         self.optimizer = optimizer
         self.n_electron: int = None
-        self.reps: int = reps
         self.layers: int = layers
         self.k: int = k
         self.trotter_number: int = trotter_number
