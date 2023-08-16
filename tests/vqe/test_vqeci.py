@@ -8,17 +8,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 import numpy as np
+import pytest
 from openfermion import InteractionOperator, MolecularData
 from openfermionpyscf import run_pyscf
 from pyscf import gto
+from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
+from quri_parts.chem.ansatz import (
+    AllSinglesDoubles,
+    GateFabric,
+    ParticleConservingU1,
+    ParticleConservingU2,
+)
 from quri_parts.core.state import (
     ComputationalBasisState,
     comp_basis_superposition,
 )
+from quri_parts.openfermion.ansatz import KUpCCGSD, TrotterUCCSD
+from quri_parts.openfermion.transforms import bravyi_kitaev, jordan_wigner
 
 from chemqulacs.util import utils
-from chemqulacs.vqe.vqeci import VQECI, _get_active_hamiltonian
+from chemqulacs.vqe.vqeci import (
+    VQECI,
+    Ansatz,
+    _create_ansatz,
+    _get_active_hamiltonian,
+)
 
 
 def vqeci() -> VQECI:
@@ -374,3 +391,169 @@ def test_make_dm2():
         ]
     )
     assert np.allclose(dm2, expected)
+
+
+class TestCreateAnsatz:
+    def default_args(self) -> dict[str, Any]:
+        args = {
+            "n_sorbs": 4,
+            "n_electrons": 2,
+            "fermion_qubit_mapping": jordan_wigner,
+            "layers": 2,
+            "k": 1,
+            "trotter_number": 1,
+            "include_pi": False,
+            "use_singles": True,
+            "delta_sz": False,
+            "singlet_excitation": False,
+        }
+        return args
+
+    def test_hwe(self) -> None:
+        args = self.default_args()
+
+        hwe_default = _create_ansatz(Ansatz.HardwareEfficient, **args)
+        assert type(hwe_default) == HardwareEfficient
+        assert len(hwe_default.gates) == 30
+
+        args["layers"] = 1
+        hwe_l1 = _create_ansatz(Ansatz.HardwareEfficient, **args)
+        assert type(hwe_l1) == HardwareEfficient
+        assert len(hwe_l1.gates) == 19
+
+    def test_sp(self) -> None:
+        args = self.default_args()
+
+        sp_default = _create_ansatz(Ansatz.SymmetryPreserving, **args)
+        assert type(sp_default) == SymmetryPreserving
+        assert len(sp_default.gates) == 42
+
+        args["layers"] = 1
+        sp_l1 = _create_ansatz(Ansatz.SymmetryPreserving, **args)
+        assert type(sp_l1) == SymmetryPreserving
+        assert len(sp_l1.gates) == 21
+
+    def test_all_singles_doubles(self) -> None:
+        args = self.default_args()
+
+        asd_default = _create_ansatz(Ansatz.AllSinglesDoubles, **args)
+        assert type(asd_default) == AllSinglesDoubles
+        assert len(asd_default.gates) == 40
+
+        args["n_electrons"] = 3
+        asd_elec3 = _create_ansatz(Ansatz.AllSinglesDoubles, **args)
+        assert type(asd_elec3) == AllSinglesDoubles
+        assert len(asd_elec3.gates) == 6
+
+    def test_particle_conserving_u1(self) -> None:
+        args = self.default_args()
+
+        pu1_default = _create_ansatz(Ansatz.ParticleConservingU1, **args)
+        assert type(pu1_default) == ParticleConservingU1
+        assert len(pu1_default.gates) == 174
+
+        args["layers"] = 1
+        pu1_l1 = _create_ansatz(Ansatz.ParticleConservingU1, **args)
+        assert type(pu1_l1) == ParticleConservingU1
+        assert len(pu1_l1.gates) == 87
+
+    def test_particle_conserving_u2(self) -> None:
+        args = self.default_args()
+
+        pu2_default = _create_ansatz(Ansatz.ParticleConservingU2, **args)
+        assert type(pu2_default) == ParticleConservingU2
+        assert len(pu2_default.gates) == 56
+
+        args["layers"] = 1
+        pu2_l1 = _create_ansatz(Ansatz.ParticleConservingU2, **args)
+        assert type(pu2_l1) == ParticleConservingU2
+        assert len(pu2_l1.gates) == 28
+
+    def test_gate_fabric(self) -> None:
+        args = self.default_args()
+
+        gf_default = _create_ansatz(Ansatz.GateFabric, **args)
+        assert type(gf_default) == GateFabric
+        assert len(gf_default.gates) == 80
+
+        args["layers"] = 1
+        gf_l1 = _create_ansatz(Ansatz.GateFabric, **args)
+        assert type(gf_l1) == GateFabric
+        assert len(gf_l1.gates) == 40
+
+        args["include_pi"] = True
+        gf_l1_pi = _create_ansatz(Ansatz.GateFabric, **args)
+        assert type(gf_l1_pi) == GateFabric
+        assert len(gf_l1_pi.gates) == 52
+
+    def test_uccsd(self) -> None:
+        default = self.default_args()
+
+        uccsd_default = _create_ansatz(Ansatz.UCCSD, **default)
+        assert type(uccsd_default) == TrotterUCCSD
+        assert len(uccsd_default.gates) == 12
+
+        args = default.copy()
+        args["trotter_number"] = 2
+        uccsd_trotter2 = _create_ansatz(Ansatz.UCCSD, **args)
+        assert type(uccsd_trotter2) == TrotterUCCSD
+        assert len(uccsd_trotter2.gates) == 24
+
+        args = default.copy()
+        args["fermion_qubit_mapping"] = bravyi_kitaev
+        uccsd_bk = _create_ansatz(Ansatz.UCCSD, **args)
+        assert type(uccsd_bk) == TrotterUCCSD
+        assert len(uccsd_bk.gates) == 12
+        assert uccsd_default.gates[0] != uccsd_bk.gates[0]
+
+        args = default.copy()
+        args["use_singles"] = False
+        uccd = _create_ansatz(Ansatz.UCCSD, **args)
+        assert type(uccd) == TrotterUCCSD
+        assert len(uccd.gates) == 8
+
+        args = default.copy()
+        args["singlet_excitation"] = True
+        uccsd_singlet = _create_ansatz(Ansatz.UCCSD, **args)
+        assert type(uccsd_singlet) == TrotterUCCSD
+        assert len(uccsd_singlet.gates) == 12
+        assert uccsd_singlet.parameter_count != uccsd_default.parameter_count
+
+        args = default.copy()
+        args["singlet_excitation"] = True
+        args["delta_sz"] = 1
+        with pytest.raises(ValueError):
+            _create_ansatz(Ansatz.UCCSD, **args)
+
+    def test_kupccgsd(self) -> None:
+        default = self.default_args()
+
+        kupccgsd_default = _create_ansatz(Ansatz.KUpCCGSD, **default)
+        assert type(kupccgsd_default) == KUpCCGSD
+        assert len(kupccgsd_default.gates) == 12
+
+        args = default.copy()
+        args["trotter_number"] = 2
+        kupccgsd_trotter2 = _create_ansatz(Ansatz.KUpCCGSD, **args)
+        assert type(kupccgsd_trotter2) == KUpCCGSD
+        assert len(kupccgsd_trotter2.gates) == 24
+
+        args = default.copy()
+        args["fermion_qubit_mapping"] = bravyi_kitaev
+        kupccgsd_bk = _create_ansatz(Ansatz.KUpCCGSD, **args)
+        assert type(kupccgsd_bk) == KUpCCGSD
+        assert len(kupccgsd_bk.gates) == 12
+        assert kupccgsd_default.gates[0] != kupccgsd_bk.gates[0]
+
+        args = default.copy()
+        args["k"] = 2
+        kupccgsd_k2 = _create_ansatz(Ansatz.KUpCCGSD, **args)
+        assert type(kupccgsd_k2) == KUpCCGSD
+        assert len(kupccgsd_k2.gates) == 24
+
+        args = default.copy()
+        args["singlet_excitation"] = True
+        kupccgsd_singlet = _create_ansatz(Ansatz.KUpCCGSD, **args)
+        assert type(kupccgsd_singlet) == KUpCCGSD
+        assert len(kupccgsd_singlet.gates) == 12
+        assert kupccgsd_singlet.parameter_count != kupccgsd_default.parameter_count
