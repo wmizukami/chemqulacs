@@ -10,7 +10,7 @@
 
 # type:ignore
 from enum import Enum, auto
-from itertools import combinations,product
+from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
 
