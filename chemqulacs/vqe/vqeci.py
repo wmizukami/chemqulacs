@@ -65,8 +65,6 @@ from quri_parts.qulacs.estimator import (
 from chemqulacs.vqe.rdm import get_1rdm, get_2rdm
 
 
-
-
 class Backend:
     """Base class represents backend"""
 
