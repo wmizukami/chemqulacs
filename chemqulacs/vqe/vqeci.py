@@ -205,8 +205,8 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
 
 
 def _create_concurrent_estimators(
-        backend: Backend, shots_per_iter: int
-    ) -> tuple[
+    backend: Backend, shots_per_iter: int
+) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
