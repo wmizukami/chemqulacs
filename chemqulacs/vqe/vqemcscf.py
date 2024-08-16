@@ -25,7 +25,7 @@ def print_formatstring(energies, occ_indices_lst):
     """
     """
     example:
-    
+
     Calculated electronic
     state   Energy(Hartree) Excitation energy(eV)   Occupancy indicates\n
     S0      -74.964448      0.0000
