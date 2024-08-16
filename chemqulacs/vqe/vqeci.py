@@ -10,7 +10,8 @@
 
 # type:ignore
 from enum import Enum, auto
-from itertools import product
+from itertools import combinations,product
+from math import comb
 from typing import Mapping, Optional, Sequence
 
 import numpy as np
@@ -63,8 +64,7 @@ from quri_parts.qulacs.estimator import (
 
 from chemqulacs.vqe.rdm import get_1rdm, get_2rdm
 
-from itertools import combinations
-from math import comb
+
 
 
 class Backend:
