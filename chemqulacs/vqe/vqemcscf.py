@@ -14,7 +14,8 @@ from quri_parts.openfermion.transforms import jordan_wigner
 
 from chemqulacs.vqe.vqeci import VQECI, Ansatz, Backend, QulacsBackend
 
-def print_formatstring(energies,occ_indices_lst):
+
+def print_formatstring(energies, occ_indices_lst):
     """
     energies: list of float
         list of energies of each state
@@ -32,19 +33,33 @@ def print_formatstring(energies,occ_indices_lst):
     S2      -74.528864      11.8528                 0 -> 2
     S3      -74.528864      11.8528                 1 -> 3
     """
-    base_energy=energies[0]
-    energy_diffs=[energy-base_energy for energy in energies]
+    base_energy = energies[0]
+    energy_diffs = [energy - base_energy for energy in energies]
 
-    base_occ_indices=occ_indices_lst[0]
-    occ_indices_diffs=[(set(base_occ_indices)-set(occ_indices),set(occ_indices)-set(base_occ_indices)) for occ_indices in occ_indices_lst]
-    occ_indices_diffs_str=[f"{','.join(map(str,occ_indices_diff[0]))} -> {','.join(map(str,occ_indices_diff[1]))}" if len(occ_indices_diff[0])>=1 else "" for occ_indices_diff in occ_indices_diffs]
-    states_str=["S"+str(i) for i in range(len(energies))]
+    base_occ_indices = occ_indices_lst[0]
+    occ_indices_diffs = [
+        (
+            set(base_occ_indices) - set(occ_indices),
+            set(occ_indices) - set(base_occ_indices),
+        )
+        for occ_indices in occ_indices_lst
+    ]
+    occ_indices_diffs_str = [
+        (
+            f"{','.join(map(str,occ_indices_diff[0]))} -> {','.join(map(str,occ_indices_diff[1]))}"
+            if len(occ_indices_diff[0]) >= 1
+            else ""
+        )
+        for occ_indices_diff in occ_indices_diffs
+    ]
+    states_str = ["S" + str(i) for i in range(len(energies))]
 
-    print('Calculated electronic state')
-    print('state\tEnergy(Hartree)\tExcitation energy(eV)\tOccupancy indicates')
+    print("Calculated electronic state")
+    print("state\tEnergy(Hartree)\tExcitation energy(eV)\tOccupancy indicates")
     for i in range(len(energies)):
-        print(f"{states_str[i]}\t{energies[i]:7f}\t{energy_diffs[i]*27.2114:.4f}           \t{occ_indices_diffs_str[i]}")
-    
+        print(
+            f"{states_str[i]}\t{energies[i]:7f}\t{energy_diffs[i]*27.2114:.4f}           \t{occ_indices_diffs_str[i]}"
+        )
 
 
 class VQECASCI(casci.CASCI):
@@ -100,7 +115,7 @@ class VQECASCI(casci.CASCI):
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number:int=0,
+        excitation_number: int = 0,
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -129,7 +144,7 @@ class VQECASCI(casci.CASCI):
         )
 
     def print_energies(self):
-        print_formatstring(self.fcisolver.energies,self.fcisolver.occ_indices_lst)
+        print_formatstring(self.fcisolver.energies, self.fcisolver.occ_indices_lst)
 
 
 class VQECASSCF(mc1step.CASSCF):
@@ -186,7 +201,7 @@ class VQECASSCF(mc1step.CASSCF):
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number:int=0,
+        excitation_number: int = 0,
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -215,4 +230,4 @@ class VQECASSCF(mc1step.CASSCF):
         )
 
     def print_energies(self):
-        print_formatstring(self.fcisolver.energies,self.fcisolver.occ_indices_lst)
+        print_formatstring(self.fcisolver.energies, self.fcisolver.occ_indices_lst)

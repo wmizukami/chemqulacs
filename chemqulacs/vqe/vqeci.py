@@ -66,6 +66,7 @@ from chemqulacs.vqe.rdm import get_1rdm, get_2rdm
 from itertools import combinations
 from math import comb
 
+
 class Backend:
     """Base class represents backend"""
 
@@ -203,9 +204,7 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(
-    backend: Backend, shots_per_iter: int
-) -> tuple[
+def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -379,8 +378,8 @@ class VQECI(object):
         self.mol = mol
         self.fermion_qubit_mapping = fermion_qubit_mapping
         self.opt_param = None  # to be used to store the optimal parameter for the VQE
-        self.initial_states:list = None
-        self.opt_states:list = None
+        self.initial_states: list = None
+        self.opt_states: list = None
         self.n_qubit: int = None
         self.n_orbitals: int = None
         self.ansatz: Ansatz = ansatz
@@ -398,7 +397,7 @@ class VQECI(object):
         self.e = 0
         self.excitation_number = excitation_number
 
-        self.energies:list = None
+        self.energies: list = None
 
         self.estimator, self.parametric_estimator = _create_concurrent_estimators(
             backend, shots_per_iter
@@ -422,13 +421,16 @@ class VQECI(object):
             self.fermionic_hamiltonian,
         )
         # Set initial Quantum State
-        
-        for k in range(self.n_electron,9999):
-            if comb(k, self.n_electron)>=self.excitation_number+1:
+
+        for k in range(self.n_electron, 9999):
+            if comb(k, self.n_electron) >= self.excitation_number + 1:
                 break
-        occ_indices_lst=sorted(list(combinations(range(k), self.n_electron)),key=lambda lst:sum([2**a for a in lst]))[:self.excitation_number+1]
-        self.occ_indices_lst=occ_indices_lst
-        
+        occ_indices_lst = sorted(
+            list(combinations(range(k), self.n_electron)),
+            key=lambda lst: sum([2**a for a in lst]),
+        )[: self.excitation_number + 1]
+        self.occ_indices_lst = occ_indices_lst
+
         state_mapper = self.fermion_qubit_mapping.get_state_mapper(
             2 * self.n_orbitals, self.n_electron
         )
@@ -449,7 +451,7 @@ class VQECI(object):
             self.singlet_excitation,
         )
         # Create parametric state
-        param_states=[]
+        param_states = []
         for i in range(len(self.initial_states)):
             param_circuit = LinearMappedUnboundParametricQuantumCircuit(self.n_qubit)
             param_circuit.extend(self.initial_states[i].circuit)
@@ -462,18 +464,33 @@ class VQECI(object):
         )
 
         def get_energies(params):
-            return [self.parametric_estimator(qubit_hamiltonian, param_states[i], [params])[0].value.real for i in range(len(param_states))]
+            return [
+                self.parametric_estimator(qubit_hamiltonian, param_states[i], [params])[
+                    0
+                ].value.real
+                for i in range(len(param_states))
+            ]
 
         def cost_fn(params):
-            return sum([self.parametric_estimator(qubit_hamiltonian, param_states[i], [params])[0].value.real*2**(-i) for i in range(len(param_states))])
+            return sum(
+                [
+                    self.parametric_estimator(
+                        qubit_hamiltonian, param_states[i], [params]
+                    )[0].value.real
+                    * 2 ** (-i)
+                    for i in range(len(param_states))
+                ]
+            )
 
         def grad_fn(params):
-            grads=[]
+            grads = []
             for i in range(len(param_states)):
-                estimate = gradient_estimator(qubit_hamiltonian, param_states[i], params)
-                grad=np.asarray([g.real for g in estimate.values])
-                grads.append(grad*2**(-i))
-            return np.sum(grads,axis=0)
+                estimate = gradient_estimator(
+                    qubit_hamiltonian, param_states[i], params
+                )
+                grad = np.asarray([g.real for g in estimate.values])
+                grads.append(grad * 2 ** (-i))
+            return np.sum(grads, axis=0)
 
         print("----VQE-----")
 
@@ -488,16 +505,15 @@ class VQECI(object):
         self.opt_param = result.params
 
         # Store optimal state
-        self.opt_states=[]
+        self.opt_states = []
         for i in range(len(param_states)):
             self.opt_states.append(param_states[i].bind_parameters(result.params))
-        
 
         # Get energy
         self.e = result.cost
-        self.energies=get_energies(result.params)
+        self.energies = get_energies(result.params)
 
-        return self.e,None
+        return self.e, None
 
     # ======================
     def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
