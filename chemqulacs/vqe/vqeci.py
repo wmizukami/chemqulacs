@@ -378,7 +378,7 @@ class VQECI(object):
         self.mol = mol
         self.fermion_qubit_mapping = fermion_qubit_mapping
         self.opt_param = None  # to be used to store the optimal parameter for the VQE
-        self.initial_states: list =[None]
+        self.initial_states: list = [None]
         self.opt_states: list = [None]
         self.n_qubit: int = None
         self.n_orbitals: int = None
