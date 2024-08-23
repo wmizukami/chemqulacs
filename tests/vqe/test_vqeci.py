@@ -53,8 +53,8 @@ def vqeci() -> VQECI:
     mol = gto.M(atom=geom_water, basis="sto-3g")
 
     vqe_ci = VQECI(mol=mol)
-    vqe_ci.initial_state = state
-    vqe_ci.opt_state = state
+    vqe_ci.initial_states = [state]
+    vqe_ci.opt_states = [state]
     vqe_ci.n_orbitals = int(n_qubits / 2)
     vqe_ci.n_qubit = n_qubits
 
@@ -248,9 +248,9 @@ def test_make_rdm1():
         np.array([[2, 0, 0, 0], [0, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]),
     )
 
-    vqe_ci.opt_state = comp_basis_superposition(
-        vqe_ci.opt_state, ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
-    )
+    vqe_ci.opt_states = [comp_basis_superposition(
+        vqe_ci.opt_states[0], ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
+    )]
     assert np.allclose(
         vqe_ci.make_rdm1(None, vqe_ci.n_orbitals, [2, 2]),
         np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]),
@@ -290,9 +290,9 @@ def test_make_rdm12():
     )
     assert np.allclose(rdm2, expected)
 
-    vqe_ci.opt_state = comp_basis_superposition(
-        vqe_ci.opt_state, ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
-    )
+    vqe_ci.opt_states = [comp_basis_superposition(
+        vqe_ci.opt_states[0], ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
+    )]
     _, rdm2 = vqe_ci.make_rdm12(None, vqe_ci.n_orbitals, [2, 2])
     expected = np.array(
         [
@@ -358,9 +358,9 @@ def test_make_dm2():
     )
     assert np.allclose(dm2, expected)
 
-    vqe_ci.opt_state = comp_basis_superposition(
-        vqe_ci.opt_state, ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
-    )
+    vqe_ci.opt_states = [comp_basis_superposition(
+        vqe_ci.opt_states[0], ComputationalBasisState(8, bits=0b11110000), np.pi / 4, 0
+    )]
     dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
     expected = np.array(
         [

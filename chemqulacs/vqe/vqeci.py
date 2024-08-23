@@ -378,8 +378,8 @@ class VQECI(object):
         self.mol = mol
         self.fermion_qubit_mapping = fermion_qubit_mapping
         self.opt_param = None  # to be used to store the optimal parameter for the VQE
-        self.initial_states: list = None
-        self.opt_states: list = None
+        self.initial_states: list =[None]
+        self.opt_states: list = [None]
         self.n_qubit: int = None
         self.n_orbitals: int = None
         self.ansatz: Ansatz = ansatz
@@ -616,11 +616,11 @@ class VQECI(object):
             jb = 2 * j + 1
             kb = 2 * k + 1
             lb = 2 * l + 1
-            # aa
+
             dm2[i, j, k, l] = (
-                self._dm2_elem(ia, ja, ka, la, self.opt_state, norb, nelec)
-                + self._dm2_elem(ib, jb, kb, lb, self.opt_state, norb, nelec)
-                + self._dm2_elem(ia, ja, kb, lb, self.opt_state, norb, nelec)
-                + self._dm2_elem(ib, jb, ka, la, self.opt_state, norb, nelec)
+                self._dm2_elem(ia, ja, ka, la, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ib, jb, kb, lb, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ia, ja, kb, lb, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ib, jb, ka, la, self.opt_states[0], norb, nelec)
             )
         return dm2
