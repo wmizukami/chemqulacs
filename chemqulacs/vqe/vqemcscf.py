@@ -84,6 +84,13 @@ class VQECASCI(casci.CASCI):
                 Number of repetitions of excitation gates. Used for ``KUpCCGSD``.
             trotter_number (int):
                 Number of trotter decomposition. Used for ``UCCSD`` and ``kUpCCGSD``.
+            excitation_number (int):
+                Number of excitations.
+            weight_policy (str):
+                Policy of weight of SSVQE.
+                same : weight = 1 , 1 , 1 , 1 , ...
+                base_first : weight = 1, 0.5 , 0.5 , 0.5 ...
+                exponential : weight = 1, 0.5 , 0.25 , 0.125 ...
             include_pi (bool):
                 If ``True``, the optional constant gate is inserted. Used for ``GateFabric``.
             use_singles: (bool):
@@ -116,6 +123,7 @@ class VQECASCI(casci.CASCI):
         k: int = 1,
         trotter_number: int = 1,
         excitation_number: int = 0,
+        weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -135,6 +143,7 @@ class VQECASCI(casci.CASCI):
             k=k,
             trotter_number=trotter_number,
             excitation_number=excitation_number,
+            weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
             delta_sz=delta_sz,
@@ -169,6 +178,13 @@ class VQECASSCF(mc1step.CASSCF):
                 Number of repetitions of excitation gates. Used for ``KUpCCGSD``.
             trotter_number (int):
                 Number of trotter decomposition. Used for ``UCCSD`` and ``kUpCCGSD``.
+            excitation_number (int):
+                Number of excitations.
+            weight_policy (str):
+                Policy of weight of SSVQE.
+                same : weight = 1 , 1 , 1 , 1 , ...
+                base_first : weight = 1, 0.5 , 0.5 , 0.5 ...
+                exponential : weight = 1, 0.5 , 0.25 , 0.125 ...
             include_pi (bool):
                 If ``True``, the optional constant gate is inserted. Used for ``GateFabric``.
             use_singles: (bool):
@@ -202,6 +218,7 @@ class VQECASSCF(mc1step.CASSCF):
         k: int = 1,
         trotter_number: int = 1,
         excitation_number: int = 0,
+        weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -221,6 +238,7 @@ class VQECASSCF(mc1step.CASSCF):
             k=k,
             trotter_number=trotter_number,
             excitation_number=excitation_number,
+            weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
             delta_sz=delta_sz,

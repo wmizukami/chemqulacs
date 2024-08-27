@@ -202,9 +202,7 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(
-    backend: Backend, shots_per_iter: int
-) -> tuple[
+def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -472,12 +470,22 @@ class VQECI(object):
             ]
 
         def cost_fn(params):
+            if self.weight_policy == "exponential":
+                weights = [2 ** (-i) for i in range(len(param_states))]
+            elif self.weight_policy == "same":
+                weights = [1] * len(param_states)
+            elif self.weight_policy == "base_first":
+                weights = [1] + [0.5] * (len(param_states) - 1)
+            else:
+                raise ValueError(
+                    "Invalid weight policy. weight_policy must be one of 'exponential', 'same', 'base_first'"
+                )
             return sum(
                 [
                     self.parametric_estimator(
                         qubit_hamiltonian, param_states[i], [params]
                     )[0].value.real
-                    * 2 ** (-i)
+                    * weights[i]
                     for i in range(len(param_states))
                 ]
             )
