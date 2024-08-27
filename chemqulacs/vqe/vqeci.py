@@ -368,6 +368,7 @@ class VQECI(object):
         k: int = 1,
         trotter_number: int = 1,
         excitation_number: int = 0,
+        weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -396,6 +397,7 @@ class VQECI(object):
         self.seed: int = seed
         self.e = 0
         self.excitation_number = excitation_number
+        self.weight_policy = weight_policy
 
         self.energies: list = None
 
