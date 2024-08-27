@@ -468,7 +468,7 @@ class VQECI(object):
                 self.parametric_estimator(qubit_hamiltonian, param_state, [params])[
                     0
                 ].value.real
-                for param_state in param_states)
+                for param_state in param_states
             ]
 
         def cost_fn(params):
