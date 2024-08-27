@@ -422,11 +422,11 @@ class VQECI(object):
         )
         # Set initial Quantum State
 
-        for k in range(self.n_electron, 9999):
-            if comb(k, self.n_electron) >= self.excitation_number + 1:
+        for m in range(self.n_electron, 9999):
+            if comb(m, self.n_electron) >= self.excitation_number + 1:
                 break
         occ_indices_lst = sorted(
-            list(combinations(range(k), self.n_electron)),
+            list(combinations(range(m), self.n_electron)),
             key=lambda lst: sum([2**a for a in lst]),
         )[: self.excitation_number + 1]
         self.occ_indices_lst = occ_indices_lst
@@ -465,10 +465,10 @@ class VQECI(object):
 
         def get_energies(params):
             return [
-                self.parametric_estimator(qubit_hamiltonian, param_states[i], [params])[
+                self.parametric_estimator(qubit_hamiltonian, param_state, [params])[
                     0
                 ].value.real
-                for i in range(len(param_states))
+                for param_state in param_states)
             ]
 
         def cost_fn(params):
@@ -513,7 +513,7 @@ class VQECI(object):
         self.e = result.cost
         self.energies = get_energies(result.params)
 
-        return self.e, None
+        return self.energies[0], None
 
     # ======================
     def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
