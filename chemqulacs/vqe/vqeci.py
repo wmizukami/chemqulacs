@@ -202,9 +202,7 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(
-    backend: Backend, shots_per_iter: int
-) -> tuple[
+def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -501,13 +499,12 @@ class VQECI(object):
                     qubit_hamiltonian, param_states[i], params
                 )
                 grad = np.asarray([g.real for g in estimate.values])
-                
                 if self.weight_policy == "exponential":
-                   tmp=grad * 2 ** (-i)
+                    tmp = grad * 2 ** (-i)
                 elif self.weight_policy == "same":
-                    tmp=grad
+                    tmp = grad
                 elif self.weight_policy == "base_first":
-                    tmp=grad if i == 0 else grad * 0.5
+                    tmp = grad if i == 0 else grad * 0.5
                 else:
                     raise ValueError(
                         "Invalid weight policy. weight_policy must be one of 'exponential', 'same', 'base_first'"
