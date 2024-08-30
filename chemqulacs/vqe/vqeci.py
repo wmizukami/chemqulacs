@@ -501,7 +501,18 @@ class VQECI(object):
                     qubit_hamiltonian, param_states[i], params
                 )
                 grad = np.asarray([g.real for g in estimate.values])
-                grads.append(grad * 2 ** (-i))
+                
+                if self.weight_policy == "exponential":
+                   tmp=grad * 2 ** (-i)
+                elif self.weight_policy == "same":
+                    tmp=grad
+                elif self.weight_policy == "base_first":
+                    tmp=grad if i == 0 else grad * 0.5
+                else:
+                    raise ValueError(
+                        "Invalid weight policy. weight_policy must be one of 'exponential', 'same', 'base_first'"
+                    )
+                grads.append(tmp)
             return np.sum(grads, axis=0)
 
         print("----VQE-----")
