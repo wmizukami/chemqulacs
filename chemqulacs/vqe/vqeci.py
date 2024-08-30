@@ -202,7 +202,9 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
+def _create_concurrent_estimators(
+    backend: Backend, shots_per_iter: int
+) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -422,9 +424,12 @@ class VQECI(object):
         )
         # Set initial Quantum State
 
-        for m in range(self.n_electron, 9999):
+        for m in range(self.n_electron, 2 * self.n_electron + 1):
             if comb(m, self.n_electron) >= self.excitation_number + 1:
                 break
+        else:
+            raise Exception("excitation_number is too large")
+
         occ_indices_lst = sorted(
             list(combinations(range(m), self.n_electron)),
             key=lambda lst: sum([2**a for a in lst]),
