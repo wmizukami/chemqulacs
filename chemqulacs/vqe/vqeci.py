@@ -10,7 +10,8 @@
 
 # type:ignore
 from enum import Enum, auto
-from itertools import product
+from itertools import combinations, product
+from math import comb
 from typing import Mapping, Optional, Sequence
 
 import numpy as np
@@ -366,6 +367,8 @@ class VQECI(object):
         layers: int = 2,
         k: int = 1,
         trotter_number: int = 1,
+        excitation_number: int = 0,
+        weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
         delta_sz: int = 0,
@@ -376,8 +379,8 @@ class VQECI(object):
         self.mol = mol
         self.fermion_qubit_mapping = fermion_qubit_mapping
         self.opt_param = None  # to be used to store the optimal parameter for the VQE
-        self.initial_state = None
-        self.opt_state = None
+        self.initial_states: list = [None]
+        self.opt_states: list = [None]
         self.n_qubit: int = None
         self.n_orbitals: int = None
         self.ansatz: Ansatz = ansatz
@@ -393,6 +396,10 @@ class VQECI(object):
         self.is_init_random: bool = is_init_random
         self.seed: int = seed
         self.e = 0
+        self.excitation_number = excitation_number
+        self.weight_policy = weight_policy
+
+        self.energies: list = None
 
         self.estimator, self.parametric_estimator = _create_concurrent_estimators(
             backend, shots_per_iter
@@ -416,11 +423,23 @@ class VQECI(object):
             self.fermionic_hamiltonian,
         )
         # Set initial Quantum State
-        occ_indices = list(range(self.n_electron))
+
+        for m in range(self.n_electron, 2 * self.n_electron + 1):
+            if comb(m, self.n_electron) >= self.excitation_number + 1:
+                break
+        else:
+            raise Exception("excitation_number is too large")
+
+        occ_indices_lst = sorted(
+            list(combinations(range(m), self.n_electron)),
+            key=lambda lst: sum([2**a for a in lst]),
+        )[: self.excitation_number + 1]
+        self.occ_indices_lst = occ_indices_lst
+
         state_mapper = self.fermion_qubit_mapping.get_state_mapper(
             2 * self.n_orbitals, self.n_electron
         )
-        self.initial_state = state_mapper(occ_indices)
+        self.initial_states = [state_mapper(x) for x in occ_indices_lst]
 
         # Set given ansatz
         ansatz = _create_ansatz(
@@ -437,24 +456,66 @@ class VQECI(object):
             self.singlet_excitation,
         )
         # Create parametric state
-        param_circuit = LinearMappedUnboundParametricQuantumCircuit(self.n_qubit)
-        param_circuit.extend(self.initial_state.circuit)
-        param_circuit.extend(ansatz)
-        param_state = ParametricCircuitQuantumState(self.n_qubit, param_circuit)
+        param_states = []
+        for i in range(len(self.initial_states)):
+            param_circuit = LinearMappedUnboundParametricQuantumCircuit(self.n_qubit)
+            param_circuit.extend(self.initial_states[i].circuit)
+            param_circuit.extend(ansatz)
+            param_state = ParametricCircuitQuantumState(self.n_qubit, param_circuit)
+            param_states.append(param_state)
 
         gradient_estimator = create_parameter_shift_gradient_estimator(
             self.parametric_estimator
         )
 
+        def get_energies(params):
+            return [
+                self.parametric_estimator(qubit_hamiltonian, param_state, [params])[
+                    0
+                ].value.real
+                for param_state in param_states
+            ]
+
         def cost_fn(params):
-            estimate = self.parametric_estimator(
-                qubit_hamiltonian, param_state, [params]
-            )[0]
-            return estimate.value.real
+            if self.weight_policy == "exponential":
+                weights = [2 ** (-i) for i in range(len(param_states))]
+            elif self.weight_policy == "same":
+                weights = [1] * len(param_states)
+            elif self.weight_policy == "base_first":
+                weights = [1] + [0.5] * (len(param_states) - 1)
+            else:
+                raise ValueError(
+                    "Invalid weight policy. weight_policy must be one of 'exponential', 'same', 'base_first'"
+                )
+            return sum(
+                [
+                    self.parametric_estimator(
+                        qubit_hamiltonian, param_states[i], [params]
+                    )[0].value.real
+                    * weights[i]
+                    for i in range(len(param_states))
+                ]
+            )
 
         def grad_fn(params):
-            estimate = gradient_estimator(qubit_hamiltonian, param_state, params)
-            return np.asarray([g.real for g in estimate.values])
+            grads = []
+            for i in range(len(param_states)):
+                estimate = gradient_estimator(
+                    qubit_hamiltonian, param_states[i], params
+                )
+                grad = np.asarray([g.real for g in estimate.values])
+                if self.weight_policy == "exponential":
+                    tmp = grad * 2 ** (-i)
+                elif self.weight_policy == "same":
+                    tmp = grad
+                elif self.weight_policy == "base_first":
+                    tmp = grad if i == 0 else grad * 0.5
+                else:
+                    raise ValueError(
+                        "Invalid weight policy. weight_policy must be one of 'exponential', 'same', 'base_first'"
+                    )
+                grads.append(tmp)
+            return np.sum(grads, axis=0)
 
         print("----VQE-----")
 
@@ -469,23 +530,27 @@ class VQECI(object):
         self.opt_param = result.params
 
         # Store optimal state
-        self.opt_state = param_state.bind_parameters(result.params)
+        self.opt_states = []
+        for i in range(len(param_states)):
+            self.opt_states.append(param_states[i].bind_parameters(result.params))
 
         # Get energy
         self.e = result.cost
-        return self.e, None
+        self.energies = get_energies(result.params)
+
+        return self.energies[0], None
 
     # ======================
     def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
         nelec = sum(nelec)
-        dm1 = self._one_rdm(self.opt_state, norb, nelec)
+        dm1 = self._one_rdm(self.opt_states[0], norb, nelec)
         return dm1
 
     # ======================
     def make_rdm12(self, _, norb, nelec, link_index=None, **kwargs):
         nelec = sum(nelec)
-        dm2 = self._two_rdm(self.opt_state, norb, nelec)
-        return self._one_rdm(self.opt_state, norb, nelec), dm2
+        dm2 = self._two_rdm(self.opt_states[0], norb, nelec)
+        return self._one_rdm(self.opt_states[0], norb, nelec), dm2
 
     # ======================
     def spin_square(self, civec, norb, nelec):
@@ -576,11 +641,11 @@ class VQECI(object):
             jb = 2 * j + 1
             kb = 2 * k + 1
             lb = 2 * l + 1
-            # aa
+
             dm2[i, j, k, l] = (
-                self._dm2_elem(ia, ja, ka, la, self.opt_state, norb, nelec)
-                + self._dm2_elem(ib, jb, kb, lb, self.opt_state, norb, nelec)
-                + self._dm2_elem(ia, ja, kb, lb, self.opt_state, norb, nelec)
-                + self._dm2_elem(ib, jb, ka, la, self.opt_state, norb, nelec)
+                self._dm2_elem(ia, ja, ka, la, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ib, jb, kb, lb, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ia, ja, kb, lb, self.opt_states[0], norb, nelec)
+                + self._dm2_elem(ib, jb, ka, la, self.opt_states[0], norb, nelec)
             )
         return dm2

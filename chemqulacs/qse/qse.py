@@ -71,14 +71,14 @@ class QSE(object):
             myop_i_fermi = hermitian_conjugated(iop) * self.vqeci.fermionic_hamiltonian
             myop_i_qubit = op_mapper(myop_i_fermi)
             self.hamiltonian[idx, 0] = self.vqeci.estimator(
-                [myop_i_qubit], [self.vqeci.opt_state]
+                [myop_i_qubit], [self.vqeci.opt_states[0]]
             )[0].value
             self.hamiltonian[0, idx] = self.hamiltonian[idx, 0].conj()
             for jdx, jop in enumerate(self.e_op, 1):
                 myop_ij = myop_i_fermi * jop
                 myop_ij = op_mapper(myop_ij)
                 self.hamiltonian[idx, jdx] = self.vqeci.estimator(
-                    [myop_ij], [self.vqeci.opt_state]
+                    [myop_ij], [self.vqeci.opt_states[0]]
                 )[0].value
                 self.hamiltonian[jdx, idx] = (self.hamiltonian[idx, jdx]).conj()
 
@@ -93,14 +93,14 @@ class QSE(object):
             myop_i_fermi = hermitian_conjugated(iop)
             myop_i_qubit = op_mapper(myop_i_fermi)
             self.S[idx, 0] = self.vqeci.estimator(
-                [myop_i_qubit], [self.vqeci.opt_state]
+                [myop_i_qubit], [self.vqeci.opt_states[0]]
             )[0].value
             self.S[0, idx] = (self.S[idx, 0]).conj()
             for jdx, jop in enumerate(self.e_op, 1):
                 myop_ij = myop_i_fermi * jop
                 myop_ij = op_mapper(myop_ij)
                 self.S[idx, jdx] = self.vqeci.estimator(
-                    [myop_ij], [self.vqeci.opt_state]
+                    [myop_ij], [self.vqeci.opt_states[0]]
                 )[0].value
                 self.S[jdx, idx] = (self.S[idx, jdx]).conj()
 
