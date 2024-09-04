@@ -272,9 +272,6 @@ files = [
 
 [package.dependencies]
 botocore = ">=1.35.9,<1.36.0"
-    {file = "boto3-1.35.4-py3-none-any.whl", hash = "sha256:96c39593afb7b55ebb74d08c8e3201041d105b557c8c8536c9054c9f13da5f2a"},
-    {file = "boto3-1.35.4.tar.gz", hash = "sha256:d997b82c468bd5c2d5cd29810d47079b66b178d2b5ae021aebe262c4d78d4c94"},
-]
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
