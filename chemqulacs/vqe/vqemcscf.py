@@ -153,7 +153,7 @@ class VQECASCI(casci.CASCI):
         )
 
     def print_energies(self):
-        print_formatstring(self.e_tot, self.fcisolver.occ_indices_lst)
+        print_formatstring(self.fcisolver.energies, self.fcisolver.occ_indices_lst)
 
 
 class VQECASSCF(mc1step.CASSCF):
@@ -217,7 +217,7 @@ class VQECASSCF(mc1step.CASSCF):
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
-        nroots: int = 0,
+        nroots: int = 1,
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
