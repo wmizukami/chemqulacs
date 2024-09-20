@@ -152,8 +152,6 @@ class VQECASCI(casci.CASCI):
             seed=seed,
         )
 
-    
-
     def print_energies(self):
         print_formatstring(self.e_tot, self.fcisolver.occ_indices_lst)
 

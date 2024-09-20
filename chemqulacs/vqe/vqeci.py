@@ -202,9 +202,7 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(
-    backend: Backend, shots_per_iter: int
-) -> tuple[
+def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -537,8 +535,8 @@ class VQECI(object):
         # Get energy
         self.e = result.cost
         self.energies = get_energies(result.params)
-    
-        return self.energies[0],None
+
+        return self.energies[0], None
 
     # ======================
     def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
