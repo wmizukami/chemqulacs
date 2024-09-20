@@ -367,7 +367,7 @@ class VQECI(object):
         layers: int = 2,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number: int = 0,
+        nroots: int = 1,
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
@@ -396,7 +396,7 @@ class VQECI(object):
         self.is_init_random: bool = is_init_random
         self.seed: int = seed
         self.e = 0
-        self.excitation_number = excitation_number
+        self.nroots = nroots
         self.weight_policy = weight_policy
 
         self.energies: list = None
@@ -425,15 +425,15 @@ class VQECI(object):
         # Set initial Quantum State
 
         for m in range(self.n_electron, 2 * self.n_electron + 1):
-            if comb(m, self.n_electron) >= self.excitation_number + 1:
+            if comb(m, self.n_electron) >= self.nroots:
                 break
         else:
-            raise Exception("excitation_number is too large")
+            raise Exception("nroots is too large")
 
         occ_indices_lst = sorted(
             list(combinations(range(m), self.n_electron)),
             key=lambda lst: sum([2**a for a in lst]),
-        )[: self.excitation_number + 1]
+        )[: self.nroots]
         self.occ_indices_lst = occ_indices_lst
 
         state_mapper = self.fermion_qubit_mapping.get_state_mapper(
@@ -537,8 +537,8 @@ class VQECI(object):
         # Get energy
         self.e = result.cost
         self.energies = get_energies(result.params)
-
-        return self.energies[0], None
+    
+        return self.energies[0],None
 
     # ======================
     def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):

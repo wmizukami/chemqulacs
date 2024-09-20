@@ -84,8 +84,8 @@ class VQECASCI(casci.CASCI):
                 Number of repetitions of excitation gates. Used for ``KUpCCGSD``.
             trotter_number (int):
                 Number of trotter decomposition. Used for ``UCCSD`` and ``kUpCCGSD``.
-            excitation_number (int):
-                Number of excitations.
+            nroots (int):
+                Number of roots.
             weight_policy (str):
                 Policy of weight of SSVQE.
                 same : weight = 1 , 1 , 1 , 1 , ...
@@ -122,7 +122,7 @@ class VQECASCI(casci.CASCI):
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number: int = 0,
+        nroots: int = 1,
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
@@ -142,7 +142,7 @@ class VQECASCI(casci.CASCI):
             layers=layers,
             k=k,
             trotter_number=trotter_number,
-            excitation_number=excitation_number,
+            nroots=nroots,
             weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
@@ -152,8 +152,10 @@ class VQECASCI(casci.CASCI):
             seed=seed,
         )
 
+    
+
     def print_energies(self):
-        print_formatstring(self.fcisolver.energies, self.fcisolver.occ_indices_lst)
+        print_formatstring(self.e_tot, self.fcisolver.occ_indices_lst)
 
 
 class VQECASSCF(mc1step.CASSCF):
@@ -178,8 +180,8 @@ class VQECASSCF(mc1step.CASSCF):
                 Number of repetitions of excitation gates. Used for ``KUpCCGSD``.
             trotter_number (int):
                 Number of trotter decomposition. Used for ``UCCSD`` and ``kUpCCGSD``.
-            excitation_number (int):
-                Number of excitations.
+            nroots (int):
+                Number of roots.
             weight_policy (str):
                 Policy of weight of SSVQE.
                 same : weight = 1 , 1 , 1 , 1 , ...
@@ -217,7 +219,7 @@ class VQECASSCF(mc1step.CASSCF):
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number: int = 0,
+        nroots: int = 0,
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
@@ -237,7 +239,7 @@ class VQECASSCF(mc1step.CASSCF):
             layers=layers,
             k=k,
             trotter_number=trotter_number,
-            excitation_number=excitation_number,
+            nroots=nroots,
             weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
