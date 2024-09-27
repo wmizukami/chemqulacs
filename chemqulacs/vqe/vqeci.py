@@ -19,8 +19,9 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import QuantumCircuit, transpile
-from qiskit_ibm_provider import IBMProvider
+
+from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2 as Sampler
+
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -129,27 +130,10 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-
-        # Save account credentials.
-        # IBMProvider.save_account(token=MY_API_TOKEN)
-
-
-        provider = IBMProvider()
-
-        # Create a circuit
-        qc = QuantumCircuit(2)
-        qc.h(0)
-        qc.cx(0, 1)
-        qc.measure_all()
-
-        # Select a backend.
-        device = provider.get_backend(backend_name)
-
-        sampling_backend = QiskitSamplingBackend(
-            device, qubit_mapping=qubit_mapping, **run_kwargs
-        )
-        self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
-QiskitBackend("ibmq_qasm_simulator")
+ 
+        service = QiskitRuntimeService()
+        backend = service.least_busy(operational=True, simulator=False)
+        self.sampler = Sampler(backend)
 
 class Ansatz(Enum):
     """An enum representing an ansatz for VQE"""
