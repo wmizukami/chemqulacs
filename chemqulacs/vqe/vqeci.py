@@ -19,7 +19,8 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import IBMQ
+from qiskit import QuantumCircuit, transpile
+from qiskit_ibm_provider import IBMProvider
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -128,14 +129,27 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        IBMQ.load_account()
-        provider = IBMQ.get_provider(hub, group, project)
+
+        # Save account credentials.
+        # IBMProvider.save_account(token=MY_API_TOKEN)
+
+
+        provider = IBMProvider()
+
+        # Create a circuit
+        qc = QuantumCircuit(2)
+        qc.h(0)
+        qc.cx(0, 1)
+        qc.measure_all()
+
+        # Select a backend.
         device = provider.get_backend(backend_name)
+
         sampling_backend = QiskitSamplingBackend(
             device, qubit_mapping=qubit_mapping, **run_kwargs
         )
         self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
-
+QiskitBackend("ibmq_qasm_simulator")
 
 class Ansatz(Enum):
     """An enum representing an ansatz for VQE"""
@@ -435,6 +449,7 @@ class VQECI(object):
             key=lambda lst: sum([2**a for a in lst]),
         )[: self.nroots]
         self.occ_indices_lst = occ_indices_lst
+        print(occ_indices_lst)
 
         state_mapper = self.fermion_qubit_mapping.get_state_mapper(
             2 * self.n_orbitals, self.n_electron
