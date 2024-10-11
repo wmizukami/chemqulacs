@@ -57,7 +57,6 @@ from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
 )
-from quri_parts.qiskit.backend import QiskitSamplingBackend
 from quri_parts.qulacs.estimator import (
     create_qulacs_vector_concurrent_estimator,
     create_qulacs_vector_concurrent_parametric_estimator,
