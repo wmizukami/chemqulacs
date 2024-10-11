@@ -19,9 +19,8 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-
-from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2 as Sampler
-
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
