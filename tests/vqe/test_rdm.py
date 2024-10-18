@@ -29,7 +29,7 @@ def test_get_1rdm():
     estimator = create_qulacs_vector_concurrent_estimator()
 
     jw_mapping = jordan_wigner
-    state_mapper = jw_mapping.get_state_mapper(n_sorbs, n_electrons)
+    state_mapper = jw_mapping.get_state_mapper(n_sorbs, n_electrons, 0)
     jw_state = state_mapper(occupied_indices)
     jw_1rdm = get_1rdm(jw_state, jw_mapping, estimator, n_electrons)
     assert np.allclose(
@@ -38,7 +38,7 @@ def test_get_1rdm():
     )
 
     bk_mapping = bravyi_kitaev
-    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons, 0)
     bk_state = state_mapper(occupied_indices)
     assert np.allclose(
         jw_1rdm,
@@ -46,7 +46,7 @@ def test_get_1rdm():
     )
 
     scbk_mapping = symmetry_conserving_bravyi_kitaev
-    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons, 0)
     scbk_state = state_mapper(occupied_indices)
     assert np.allclose(
         jw_1rdm,
@@ -97,13 +97,13 @@ def test_get_2rdm():
     assert np.allclose(jw_2rdm, expected)
 
     bk_mapping = bravyi_kitaev
-    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons, 0)
     occupied_indices = [0, 1]
     bk_state = state_mapper(occupied_indices)
     assert np.allclose(jw_2rdm, get_2rdm(bk_state, bk_mapping, estimator, n_electrons))
 
     scbk_mapping = symmetry_conserving_bravyi_kitaev
-    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons, 0)
     occupied_indices = [0, 1]
     scbk_state = state_mapper(occupied_indices)
     assert np.allclose(

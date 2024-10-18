@@ -19,7 +19,8 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import IBMQ
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -56,7 +57,6 @@ from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
 )
-from quri_parts.qiskit.backend import QiskitSamplingBackend
 from quri_parts.qulacs.estimator import (
     create_qulacs_vector_concurrent_estimator,
     create_qulacs_vector_concurrent_parametric_estimator,
@@ -128,13 +128,10 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        IBMQ.load_account()
-        provider = IBMQ.get_provider(hub, group, project)
-        device = provider.get_backend(backend_name)
-        sampling_backend = QiskitSamplingBackend(
-            device, qubit_mapping=qubit_mapping, **run_kwargs
-        )
-        self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
+
+        service = QiskitRuntimeService()
+        backend = service.least_busy(operational=True, simulator=False)
+        self.sampler = Sampler(backend)
 
 
 class Ansatz(Enum):
@@ -298,7 +295,7 @@ def _create_ansatz(
     elif ansatz == Ansatz.KUpCCGSD:
         return KUpCCGSD(
             n_sorbs,
-            n_electrons,
+            # n_electrons,
             k,
             fermion_qubit_mapping,
             trotter_number,
@@ -367,7 +364,7 @@ class VQECI(object):
         layers: int = 2,
         k: int = 1,
         trotter_number: int = 1,
-        excitation_number: int = 0,
+        nroots: int = 1,
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
@@ -396,7 +393,7 @@ class VQECI(object):
         self.is_init_random: bool = is_init_random
         self.seed: int = seed
         self.e = 0
-        self.excitation_number = excitation_number
+        self.nroots = nroots
         self.weight_policy = weight_policy
 
         self.energies: list = None
@@ -425,16 +422,17 @@ class VQECI(object):
         # Set initial Quantum State
 
         for m in range(self.n_electron, 2 * self.n_electron + 1):
-            if comb(m, self.n_electron) >= self.excitation_number + 1:
+            if comb(m, self.n_electron) >= self.nroots:
                 break
         else:
-            raise Exception("excitation_number is too large")
+            raise Exception("nroots is too large")
 
         occ_indices_lst = sorted(
             list(combinations(range(m), self.n_electron)),
             key=lambda lst: sum([2**a for a in lst]),
-        )[: self.excitation_number + 1]
+        )[: self.nroots]
         self.occ_indices_lst = occ_indices_lst
+        print(occ_indices_lst)
 
         state_mapper = self.fermion_qubit_mapping.get_state_mapper(
             2 * self.n_orbitals, self.n_electron
