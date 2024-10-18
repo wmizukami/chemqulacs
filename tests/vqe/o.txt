@@ -1,0 +1,356 @@
+============================================================================================== test session starts ==============================================================================================
+platform linux -- Python 3.10.3, pytest-6.2.5, py-1.11.0, pluggy-1.5.0 -- /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs
+collecting ...
+collected 22 items
+
+tests/test_qse.py::test_qse_init PASSED                                                                                                                                                                   [  4%]
+tests/test_qse.py::test_qse_gen_singles_and_doubles PASSED                                                                                                                                                [  9%]
+tests/test_qse.py::test_qse_solve_singles PASSED                                                                                                                                                          [ 13%]
+tests/test_utils_pubchem.py::test_almost_equal PASSED                                                                                                                                                     [ 18%]
+tests/test_utils_pubchem.py::test_get_geometry_from_pubchem PASSED                                                                                                                                        [ 22%]
+tests/test_vqe_vqemcscf.py::test_vqecasci_h2o_2e_2o PASSED                                                                                                                                                [ 27%]
+tests/test_vqe_vqemcscf.py::test_ssvqecasci_h2o_2e_2o PASSED                                                                                                                                              [ 31%]
+tests/test_vqe_vqemcscf.py::test_vqecasscf_h2o_2e_2o PASSED                                                                                                                                               [ 36%]
+tests/vqe/test_rdm.py::test_get_1rdm
+FAILED                                                                                                                                                               [ 40%]
+tests/vqe/test_rdm.py::test_get_2rdm FAILED                                                                                                                                                               [ 45%]
+tests/vqe/test_vqeci.py::test_get_active_hamiltonian PASSED                                                                                                                                               [ 50%]
+tests/vqe/test_vqeci.py::test_make_rdm1 PASSED                                                                                                                                                            [ 54%]
+tests/vqe/test_vqeci.py::test_make_rdm12 PASSED                                                                                                                                                           [ 59%]
+tests/vqe/test_vqeci.py::test_make_dm2 PASSED                                                                                                                                                             [ 63%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_hwe PASSED                                                                                                                                                [ 68%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_sp PASSED                                                                                                                                                 [ 72%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_all_singles_doubles PASSED                                                                                                                                [ 77%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_particle_conserving_u1 PASSED                                                                                                                             [ 81%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_particle_conserving_u2 PASSED                                                                                                                             [ 86%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_gate_fabric PASSED                                                                                                                                        [ 90%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_uccsd PASSED                                                                                                                                              [ 95%]
+tests/vqe/test_vqeci.py::TestCreateAnsatz::test_kupccgsd FAILED                                                                                                                                           [100%]
+
+=================================================================================================== FAILURES ====================================================================================================
+_________________________________________________________________________________________________ test_get_1rdm _________________________________________________________________________________________________
+
+    def test_get_1rdm():
+        n_sorbs = 4
+        n_electrons = 2
+        occupied_indices = [0, 1]
+        estimator = create_qulacs_vector_concurrent_estimator()
+
+        jw_mapping = jordan_wigner
+        state_mapper = jw_mapping.get_state_mapper(n_sorbs, n_electrons)
+        jw_state = state_mapper(occupied_indices)
+        jw_1rdm = get_1rdm(jw_state, jw_mapping, estimator, n_electrons)
+        assert np.allclose(
+            jw_1rdm,
+            [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+        )
+
+        bk_mapping = bravyi_kitaev
+        state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+        bk_state = state_mapper(occupied_indices)
+        assert np.allclose(
+            jw_1rdm,
+            get_1rdm(bk_state, bk_mapping, estimator, n_electrons),
+        )
+
+        scbk_mapping = symmetry_conserving_bravyi_kitaev
+>       state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+tests/vqe/test_rdm.py:49:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:306: in get_state_mapper
+    return self(n_spin_orbitals, n_fermions, sz).state_mapper
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:255: in __call__
+    return self._mapping_method(n_spin_orbitals, n_fermions, sz)
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:137: in __init__
+    self.of_operator_mapper,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <quri_parts.openfermion.transforms.OpenFermionSymmetryConservingBravyiKitaev object at 0x7f0635e77880>
+
+    @property
+    def of_operator_mapper(self) -> OpenFermionQubitOperatorMapper:
+        """Returns a function that maps a
+        :class:`~openfermion.ops.FermionOperator`,
+        :class:`~openfermion.ops.InteractionOperator` or
+        :class:`~openfermion.ops.MajoranaOperator`
+        to a :class:`openfermion.ops.QubitOperator`
+        with symmetry-conserving Bravyi-Kitaev transformation.
+
+        Both the arguments (``n_spin_orbitals`` and ``n_fermions``) are required.
+        """
+
+        if self.n_fermions is None:
+            raise ValueError("n_fermions is required.")
+        if self.sz is None:
+>           raise ValueError("sz is required.")
+E           ValueError: sz is required.
+
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:529: ValueError
+_________________________________________________________________________________________________ test_get_2rdm _________________________________________________________________________________________________
+
+    def test_get_2rdm():
+        n_sorbs = 4
+        n_electrons = 2
+        bits = 0
+        for i in range(n_electrons):
+            bits += 1 << i
+        state = ComputationalBasisState(n_sorbs, bits=bits)
+        estimator = create_qulacs_vector_concurrent_estimator()
+
+        jw_mapping = jordan_wigner
+        jw_2rdm = get_2rdm(state, jw_mapping, estimator, n_electrons)
+
+        expected = np.array(
+            [
+                [
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                ],
+                [
+                    [[0, 1, 0, 0], [-1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                ],
+                [
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                ],
+                [
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                    [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+                ],
+            ]
+        )
+        assert np.allclose(jw_2rdm, expected)
+
+        bk_mapping = bravyi_kitaev
+        state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+        occupied_indices = [0, 1]
+        bk_state = state_mapper(occupied_indices)
+        assert np.allclose(jw_2rdm, get_2rdm(bk_state, bk_mapping, estimator, n_electrons))
+
+        scbk_mapping = symmetry_conserving_bravyi_kitaev
+>       state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+tests/vqe/test_rdm.py:106:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:306: in get_state_mapper
+    return self(n_spin_orbitals, n_fermions, sz).state_mapper
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:255: in __call__
+    return self._mapping_method(n_spin_orbitals, n_fermions, sz)
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:137: in __init__
+    self.of_operator_mapper,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <quri_parts.openfermion.transforms.OpenFermionSymmetryConservingBravyiKitaev object at 0x7f0635d7c040>
+
+    @property
+    def of_operator_mapper(self) -> OpenFermionQubitOperatorMapper:
+        """Returns a function that maps a
+        :class:`~openfermion.ops.FermionOperator`,
+        :class:`~openfermion.ops.InteractionOperator` or
+        :class:`~openfermion.ops.MajoranaOperator`
+        to a :class:`openfermion.ops.QubitOperator`
+        with symmetry-conserving Bravyi-Kitaev transformation.
+
+        Both the arguments (``n_spin_orbitals`` and ``n_fermions``) are required.
+        """
+
+        if self.n_fermions is None:
+            raise ValueError("n_fermions is required.")
+        if self.sz is None:
+>           raise ValueError("sz is required.")
+E           ValueError: sz is required.
+
+venv/lib/python3.10/site-packages/quri_parts/openfermion/transforms/__init__.py:529: ValueError
+________________________________________________________________________________________ TestCreateAnsatz.test_kupccgsd _________________________________________________________________________________________
+
+self = <test_vqeci.TestCreateAnsatz object at 0x7f0635d78580>
+
+    def test_kupccgsd(self) -> None:
+        default = self.default_args()
+
+>       kupccgsd_default = _create_ansatz(Ansatz.KUpCCGSD, **default)
+
+tests/vqe/test_vqeci.py:546:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+ansatz = <Ansatz.KUpCCGSD: 8>, fermion_qubit_mapping = <quri_parts.openfermion.transforms.OpenFermionJordanWignerFactory object at 0x7f068cb522f0>, n_sorbs = 4, n_electrons = 2, layers = 2, k = 1
+trotter_number = 1, include_pi = False, use_singles = True, delta_sz = False, singlet_excitation = False
+
+    def _create_ansatz(
+        ansatz: Ansatz,
+        fermion_qubit_mapping: OpenFermionQubitMapping,
+        n_sorbs: int,
+        n_electrons: int,
+        layers: int,
+        k: int,
+        trotter_number: int,
+        include_pi: bool,
+        use_singles: bool,
+        delta_sz: int,
+        singlet_excitation: bool,
+    ) -> LinearMappedUnboundParametricQuantumCircuit:
+        n_qubits = fermion_qubit_mapping.n_qubits_required(n_sorbs)
+        if ansatz == Ansatz.HardwareEfficient:
+            return HardwareEfficient(n_qubits, layers)
+        elif ansatz == Ansatz.SymmetryPreserving:
+            return SymmetryPreserving(n_qubits, layers)
+        elif ansatz == Ansatz.AllSinglesDoubles:
+            return AllSinglesDoubles(n_qubits, n_electrons)
+        elif ansatz == Ansatz.ParticleConservingU1:
+            return ParticleConservingU1(n_qubits, layers)
+        elif ansatz == Ansatz.ParticleConservingU2:
+            return ParticleConservingU2(n_qubits, layers)
+        elif ansatz == Ansatz.GateFabric:
+            return GateFabric(n_qubits, layers, include_pi)
+        elif ansatz == Ansatz.UCCSD:
+            return TrotterUCCSD(
+                n_sorbs,
+                n_electrons,
+                fermion_qubit_mapping,
+                trotter_number,
+                use_singles,
+                delta_sz,
+                singlet_excitation,
+            )
+        elif ansatz == Ansatz.KUpCCGSD:
+>           return KUpCCGSD(
+                n_sorbs,
+                n_electrons,
+                k,
+                fermion_qubit_mapping,
+                trotter_number,
+                delta_sz,
+                singlet_excitation,
+            )
+E           TypeError: KUpCCGSD.__init__() takes from 2 to 7 positional arguments but 8 were given
+
+chemqulacs/vqe/vqeci.py:296: TypeError
+=============================================================================================== warnings summary ================================================================================================
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/qiskit_runtime_service.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/qiskit_runtime_service.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/qiskit_runtime_service.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/qiskit_runtime_service.py:27
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/qiskit_runtime_service.py:27: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/ibm_backend.py:27: 12 warnings
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/ibm_backend.py:27: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/base_runtime_job.py:26
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/base_runtime_job.py:26
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/base_runtime_job.py:26: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_converter.py:35: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/utils/backend_decoder.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_backend.py:27: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties, BackendConfiguration, PulseDefaults
+
+venv/lib/python3.10/site-packages/qiskit/providers/fake_provider/fake_backend.py:22
+venv/lib/python3.10/site-packages/qiskit/providers/fake_provider/fake_backend.py:22
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit/providers/fake_provider/fake_backend.py:22: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_qasm_backend.py:21
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_qasm_backend.py:21
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_qasm_backend.py:21
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_qasm_backend.py:21
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_qasm_backend.py:21: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import BackendProperties, QasmBackendConfiguration
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_pulse_backend.py:18
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_pulse_backend.py:18
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_pulse_backend.py:18
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_pulse_backend.py:18
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/fake_pulse_backend.py:18: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import PulseBackendConfiguration, PulseDefaults
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/melbourne/fake_melbourne.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/poughkeepsie/fake_poughkeepsie.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/rueschlikon/fake_rueschlikon.py:17
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/rueschlikon/fake_rueschlikon.py:17
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/rueschlikon/fake_rueschlikon.py:17
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/rueschlikon/fake_rueschlikon.py:17
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/rueschlikon/fake_rueschlikon.py:17: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import GateConfig, QasmBackendConfiguration
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tenerife/fake_tenerife.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/qiskit_ibm_runtime/fake_provider/backends/tokyo/fake_tokyo.py:20: DeprecationWarning: qiskit.providers.models is deprecated since Qiskit 1.2 and will be removed in Qiskit 2.0. With the removal of Qobj, there is no need for these schema-conformant objects. If you still need to use them, it could be because you are using a BackendV1, which is also deprecated in favor of BackendV2.
+    from qiskit.providers.models import (
+
+tests/test_qse.py::test_qse_solve_singles
+  /mnt/c/Users/ymats/Documents/Desktop/Develop/Quantum/chemqulacs/venv/lib/python3.10/site-packages/pyscf/lib/scipy_helper.py:37: ComplexWarning: Casting complex values to real discards the imaginary part
+    L, piv, rank, info = _dpstrf(A, tol=tol, lower=lower)
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+============================================================================================ short test summary info ============================================================================================
+FAILED tests/vqe/test_rdm.py::test_get_1rdm - ValueError: sz is required.
+FAILED tests/vqe/test_rdm.py::test_get_2rdm - ValueError: sz is required.
+FAILED tests/vqe/test_vqeci.py::TestCreateAnsatz::test_kupccgsd - TypeError: KUpCCGSD.__init__() takes from 2 to 7 positional arguments but 8 were given
