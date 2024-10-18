@@ -32,7 +32,7 @@ def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
     op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons,sz=0
+        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
     )
     ret = np.zeros((_n_spin_orbitals, _n_spin_orbitals), dtype=np.complex128)
     ops_est = []
@@ -68,7 +68,7 @@ def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons):
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
     op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons,sz=0
+        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
     )
     ret = np.zeros(
         (_n_spin_orbitals, _n_spin_orbitals, _n_spin_orbitals, _n_spin_orbitals),
