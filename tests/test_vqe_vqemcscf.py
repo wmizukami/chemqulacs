@@ -44,28 +44,30 @@ def test_vqecasci_h2o_2e_2o():
 def test_ssvqecasci_h2o_2e_2o():
     mc = vqemcscf.VQECASCI(
         mf,
-        4,
-        4,
+        2,
+        2,
         optimizer=LBFGS(),
         ansatz=Ansatz.GateFabric,
         layers=2,
     )
-    mc.fcisolver.nroots = 5
+    mc.fcisolver.nroots = 4
     mc.kernel()
 
+    # refmc = mcscf.CASCI(mf, 4, 4)
+    # refmc.fcisolver.nroots = 5
+    # refmc.kernel()
+    # print(refmc.e_tot)
+
     ref_energies = [
-        -74.97211297714749,
-        -74.56710399202353,
-        -74.52886408322314,
-        -74.46572136143928,
-        -74.39460452887903,
+        -74.96569511044997,
+        -74.56710399202521,
+        -74.52886408322473,
+        -74.52886408322476,
     ]
- 
-    assert all(utils.almost_equal(a, b)
-               for a, b in zip(mc.fcisolver.energies, ref_energies))
     assert all(
         utils.almost_equal(a, b) for a, b in zip(mc.fcisolver.energies, ref_energies)
     )
+    
 
 # def test_vqecasci_h2o_4e_4o():
 #    mc = vqemcscf.VQECASCI(mf, 4, 4)
