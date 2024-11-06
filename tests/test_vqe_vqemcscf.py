@@ -67,7 +67,7 @@ def test_ssvqecasci_h2o_2e_2o():
     assert all(
         utils.almost_equal(a, b) for a, b in zip(mc.fcisolver.energies, ref_energies)
     )
-    
+
 
 # def test_vqecasci_h2o_4e_4o():
 #    mc = vqemcscf.VQECASCI(mf, 4, 4)
