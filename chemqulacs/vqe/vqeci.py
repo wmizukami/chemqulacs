@@ -129,10 +129,11 @@ class QiskitBackend(Backend):
         project: str = "main",
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
-    ):  
+    ):
         service = QiskitRuntimeService()
         backend = service.least_busy(operational=True, simulator=False)
         self.sampler = Sampler(backend)
+
 
 class Ansatz(Enum):
     """An enum representing an ansatz for VQE"""
