@@ -19,7 +19,8 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import IBMQ
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import SamplerV2 as Sampler
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -56,7 +57,6 @@ from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
 )
-from quri_parts.qiskit.backend import QiskitSamplingBackend
 from quri_parts.qulacs.estimator import (
     create_qulacs_vector_concurrent_estimator,
     create_qulacs_vector_concurrent_parametric_estimator,
@@ -128,13 +128,9 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        IBMQ.load_account()
-        provider = IBMQ.get_provider(hub, group, project)
-        device = provider.get_backend(backend_name)
-        sampling_backend = QiskitSamplingBackend(
-            device, qubit_mapping=qubit_mapping, **run_kwargs
-        )
-        self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
+        service = QiskitRuntimeService()
+        backend = service.least_busy(operational=True, simulator=False)
+        self.sampler = Sampler(backend)
 
 
 class Ansatz(Enum):
@@ -298,7 +294,7 @@ def _create_ansatz(
     elif ansatz == Ansatz.KUpCCGSD:
         return KUpCCGSD(
             n_sorbs,
-            n_electrons,
+            # n_electrons,
             k,
             fermion_qubit_mapping,
             trotter_number,
