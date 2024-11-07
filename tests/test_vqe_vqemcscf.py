@@ -49,8 +49,8 @@ def test_ssvqecasci_h2o_2e_2o():
         optimizer=LBFGS(),
         ansatz=Ansatz.GateFabric,
         layers=2,
+        excitation_number=3
     )
-    mc.fcisolver.nroots = 4
     mc.kernel()
 
     # refmc = mcscf.CASCI(mf, 4, 4)
