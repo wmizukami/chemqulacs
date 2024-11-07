@@ -337,7 +337,7 @@ def test_make_rdm12():
 
 def test_make_dm2():
     vqe_ci = vqeci()
-    dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
+    dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
     expected = np.array(
         [
             [
