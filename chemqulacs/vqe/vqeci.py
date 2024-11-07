@@ -294,7 +294,7 @@ def _create_ansatz(
     elif ansatz == Ansatz.KUpCCGSD:
         return KUpCCGSD(
             n_sorbs,
-            n_electrons,
+            # n_electrons,
             k,
             fermion_qubit_mapping,
             trotter_number,
