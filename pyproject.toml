@@ -25,6 +25,8 @@ quri-parts-itensor = "^0.19.0"
 quri-parts-qulacs = "^0.19.0"
 quri-parts-openfermion = "^0.19.0"
 quri-parts-qiskit = "^0.19.0"
+qiskit-ibm-runtime = "^0.22.0"
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^6.2.5"

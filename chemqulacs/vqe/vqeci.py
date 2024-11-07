@@ -19,7 +19,9 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import IBMQ
+from qiskit_ibm_runtime import QiskitRuntimeService
+from qiskit_ibm_runtime import SamplerV2 as Sampler
+
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -127,15 +129,10 @@ class QiskitBackend(Backend):
         project: str = "main",
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
-    ):
-        IBMQ.load_account()
-        provider = IBMQ.get_provider(hub, group, project)
-        device = provider.get_backend(backend_name)
-        sampling_backend = QiskitSamplingBackend(
-            device, qubit_mapping=qubit_mapping, **run_kwargs
-        )
-        self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
-
+    ):  
+        service = QiskitRuntimeService()
+        backend = service.least_busy(operational=True, simulator=False)
+        self.sampler = Sampler(backend)
 
 class Ansatz(Enum):
     """An enum representing an ansatz for VQE"""
