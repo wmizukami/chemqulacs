@@ -21,7 +21,6 @@ from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit_ibm_runtime import SamplerV2 as Sampler
-
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -58,7 +57,6 @@ from quri_parts.openfermion.transforms import (
     OpenFermionQubitMapping,
     jordan_wigner,
 )
-from quri_parts.qiskit.backend import QiskitSamplingBackend
 from quri_parts.qulacs.estimator import (
     create_qulacs_vector_concurrent_estimator,
     create_qulacs_vector_concurrent_parametric_estimator,
