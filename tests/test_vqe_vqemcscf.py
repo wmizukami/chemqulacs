@@ -52,7 +52,7 @@ def test_ssvqecasci_h2o_2e_2o():
         excitation_number=3,
     )
     mc.kernel()
-    
+
     # refmc = mcscf.CASCI(mf, 2, 2)
     # refmc.fcisolver.nroots = 4
     # refmc.kernel()
