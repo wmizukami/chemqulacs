@@ -8,6 +8,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from math import pi
+
 from pyscf import gto, mcscf, scf
 from quri_parts.algo.optimizer import LBFGS
 from quri_parts.core.state import comp_basis_superposition
@@ -15,8 +17,6 @@ from quri_parts.core.state import comp_basis_superposition
 from chemqulacs.util import utils
 from chemqulacs.vqe import vqemcscf
 from chemqulacs.vqe.vqeci import Ansatz, _generate_inital_states
-
-from math import pi
 
 
 geom_water = utils.get_geometry_from_pubchem("water")
