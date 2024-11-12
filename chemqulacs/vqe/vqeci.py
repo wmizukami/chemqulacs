@@ -320,6 +320,24 @@ def vqe(init_params, cost_fn, grad_fn, optimizer):
     return opt_state
 
 
+def _generate_inital_states(
+    n_electron, n_orbitals, excitation_number=0, fermion_qubit_mapping=jordan_wigner
+):
+    for m in range(n_electron, 2 * n_electron + 1):
+        if comb(m, n_electron) >= excitation_number + 1:
+            break
+    else:
+        raise Exception("excitation_number is too large")
+
+    occ_indices_lst = sorted(
+        list(combinations(range(m), n_electron)),
+        key=lambda lst: sum([2**a for a in lst]),
+    )[: excitation_number + 1]
+
+    state_mapper = fermion_qubit_mapping.get_state_mapper(2 * n_orbitals, n_electron)
+    return [state_mapper(x) for x in occ_indices_lst]
+
+
 # ======================
 class VQECI(object):
     """
@@ -332,6 +350,7 @@ class VQECI(object):
             optimizer
             backend (Backend)
             shots_per_iter (int)
+            inital_states (optional): Inital states for VQE
             ansatz: ansatz used for VQE
             layers (int):
                 Layers of gate operations. Used for ``HardwareEfficient``, ``SymmetryPreserving``, ``ParticleConservingU1``, ``ParticleConservingU2``, and ``GateFabric``.
@@ -363,6 +382,7 @@ class VQECI(object):
         optimizer=Adam(),
         backend: Backend = QulacsBackend(),
         shots_per_iter: int = 10000,
+        inital_states=None,
         ansatz: Ansatz = Ansatz.ParticleConservingU1,
         layers: int = 2,
         k: int = 1,
@@ -383,6 +403,7 @@ class VQECI(object):
         self.opt_states: list = [None]
         self.n_qubit: int = None
         self.n_orbitals: int = None
+        self.initial_states = inital_states
         self.ansatz: Ansatz = ansatz
         self.optimizer = optimizer
         self.n_electron: int = None
@@ -424,22 +445,15 @@ class VQECI(object):
         )
         # Set initial Quantum State
 
-        for m in range(self.n_electron, 2 * self.n_electron + 1):
-            if comb(m, self.n_electron) >= self.excitation_number + 1:
-                break
-        else:
-            raise Exception("excitation_number is too large")
-
-        occ_indices_lst = sorted(
-            list(combinations(range(m), self.n_electron)),
-            key=lambda lst: sum([2**a for a in lst]),
-        )[: self.excitation_number + 1]
-        self.occ_indices_lst = occ_indices_lst
-
-        state_mapper = self.fermion_qubit_mapping.get_state_mapper(
-            2 * self.n_orbitals, self.n_electron
-        )
-        self.initial_states = [state_mapper(x) for x in occ_indices_lst]
+        if self.initial_states is None:
+            self.initial_states = _generate_inital_states(
+                self.n_electron,
+                self.n_orbitals,
+                self.excitation_number,
+                self.fermion_qubit_mapping,
+            )
+        if not isinstance(self.initial_states, list):
+            raise TypeError("Initial_states must be of type list.")
 
         # Set given ansatz
         ansatz = _create_ansatz(
