@@ -18,7 +18,6 @@ from chemqulacs.util import utils
 from chemqulacs.vqe import vqemcscf
 from chemqulacs.vqe.vqeci import Ansatz, _generate_inital_states
 
-
 geom_water = utils.get_geometry_from_pubchem("water")
 mol = gto.M(atom=geom_water, basis="sto-3g")
 mf = scf.RHF(mol)
