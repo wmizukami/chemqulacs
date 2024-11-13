@@ -13,7 +13,7 @@ from enum import Enum, auto
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
-
+from importlib.metadata import version
 import numpy as np
 import quri_parts
 from braket.aws import AwsDevice
@@ -130,7 +130,7 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        if quri_parts.__version__ >= "0.19.0":
+        if version("quri-parts-qiskit") >= "0.19.0":
             service = QiskitRuntimeService()
             backend = service.least_busy(operational=True, simulator=False)
             self.sampler = Sampler(backend)
@@ -307,7 +307,7 @@ def _create_ansatz(
             singlet_excitation,
         )
     elif ansatz == Ansatz.KUpCCGSD:
-        if quri_parts.__version__ >= "0.19.0":
+        if version("quri-parts-openfermion") >= "0.19.0":
             return KUpCCGSD(
                 n_sorbs,
                 # n_electrons,

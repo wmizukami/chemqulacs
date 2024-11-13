@@ -13,6 +13,7 @@ from typing import Any
 import numpy as np
 import pytest
 import quri_parts
+from importlib.metadata import version
 from openfermion import InteractionOperator, MolecularData
 from openfermionpyscf import run_pyscf
 from pyscf import gto
@@ -338,7 +339,7 @@ def test_make_rdm12():
 
 def test_make_dm2():
     vqe_ci = vqeci()
-    if quri_parts.__version__ >= "0.19.0":
+    if version("quri-parts-qiskit") >= "0.19.0":
         dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
     else:
         dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
@@ -380,7 +381,7 @@ def test_make_dm2():
             0,
         )
     ]
-    if quri_parts.__version__ >= "0.19.0":
+    if version("quri-parts-qiskit") >= "0.19.0":
         dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
     else:
         dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
