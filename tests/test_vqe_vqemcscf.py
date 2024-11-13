@@ -16,7 +16,7 @@ from quri_parts.core.state import comp_basis_superposition
 
 from chemqulacs.util import utils
 from chemqulacs.vqe import vqemcscf
-from chemqulacs.vqe.vqeci import Ansatz, _generate_inital_states
+from chemqulacs.vqe.vqeci import Ansatz, generate_initial_states
 
 geom_water = utils.get_geometry_from_pubchem("water")
 mol = gto.M(atom=geom_water, basis="sto-3g")
@@ -46,14 +46,14 @@ def test_vqecasci_h2o_2e_2o():
 
 def test_ssvqecasci_h2o_2e_2o():
 
-    n_electron = 2
+    n_electrons = 2
     n_orbitals = 2
     excitation_number = 5
 
-    # Generate inital states
-    inital_states = _generate_inital_states(n_electron, n_orbitals, excitation_number)
-    state_2 = inital_states[2]
-    state_3 = inital_states[3]
+    # Generate initial states
+    initial_states = generate_initial_states(n_orbitals, n_electrons, excitation_number)
+    state_2 = initial_states[2]
+    state_3 = initial_states[3]
 
     # Define spin-adapted linear combinations
     state_2_spin_adapted = comp_basis_superposition(
@@ -64,25 +64,28 @@ def test_ssvqecasci_h2o_2e_2o():
     )
 
     # Replace initial states with spin-adapted states. Needed as Ansatz is spin conserving
-    inital_states[2] = state_2_spin_adapted
-    inital_states[3] = state_3_spin_adapted
+    initial_states[2] = state_2_spin_adapted
+    initial_states[3] = state_3_spin_adapted
 
     mc = vqemcscf.VQECASCI(
         mf,
-        n_electron,
+        n_electrons,
         n_orbitals,
         optimizer=LBFGS(),
-        inital_states=inital_states,
+        initial_states=initial_states,
         ansatz=Ansatz.GateFabric,
         layers=2,
-        excitation_number=inital_states,
+        excitation_number=excitation_number,
     )
+    mc.kernel()
 
     # Create reference CASCI values
-    mc.kernel()
-    refmc = mcscf.CASCI(mf, n_orbitals, n_electron)
-    refmc.fcisolver.nroots = excitation_number
-    refmc.kernel()
+    # refmc = mcscf.CASCI(mf, n_orbitals, n_electrons)
+    # refmc.fcisolver.nroots = excitation_number
+    # refmc.kernel()
+    # print("refmc.e_tot",refmc.e_tot)
+
+    ref_energies = [-74.96569511, -74.56710399, -74.49062417, -73.79229674]
 
     def all_elements_within_threshold(array1, array2, threshold=10**-7):
         for elem in array1:
@@ -90,7 +93,7 @@ def test_ssvqecasci_h2o_2e_2o():
                 return False
         return True
 
-    assert all_elements_within_threshold(mc.fcisolver.energies, refmc.e_tot)
+    assert all_elements_within_threshold(mc.fcisolver.energies, ref_energies)
 
 
 # def test_vqecasci_h2o_4e_4o():

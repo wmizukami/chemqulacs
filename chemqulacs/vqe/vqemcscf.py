@@ -77,7 +77,7 @@ class VQECASCI(casci.CASCI):
             optimizer
             backend (Backend)
             shots_per_iter (int)
-            inital_states (optional): Inital states for VQE
+            initial_states (optional): Initial states for VQE
             ansatz: ansatz used for VQE
             layers (int):
                 Layers of gate operations. Used for ``HardwareEfficient``, ``SymmetryPreserving``, ``ParticleConservingU1``, ``ParticleConservingU2``, and ``GateFabric``.
@@ -120,7 +120,7 @@ class VQECASCI(casci.CASCI):
         backend: Backend = QulacsBackend(),
         shots_per_iter: int = 10000,
         ansatz: Ansatz = Ansatz.ParticleConservingU1,
-        inital_states=None,
+        initial_states=None,
         layers: int = 1,
         k: int = 1,
         trotter_number: int = 1,
@@ -140,7 +140,7 @@ class VQECASCI(casci.CASCI):
             optimizer=optimizer,
             backend=backend,
             shots_per_iter=shots_per_iter,
-            inital_states=inital_states,
+            initial_states=initial_states,
             ansatz=ansatz,
             layers=layers,
             k=k,
@@ -174,7 +174,7 @@ class VQECASSCF(mc1step.CASSCF):
             optimizer
             backend (Backend)
             shots_per_iter (int)
-            inital_states (optional): Inital states for VQE
+            initial_states (optional): Initial states for VQE
             ansatz: ansatz used for VQE
             layers (int):
                 Layers of gate operations. Used for ``HardwareEfficient``, ``SymmetryPreserving``, ``ParticleConservingU1``, ``ParticleConservingU2``, and ``GateFabric``.
@@ -217,7 +217,7 @@ class VQECASSCF(mc1step.CASSCF):
         optimizer=Adam(),
         backend: Backend = QulacsBackend(),
         shots_per_iter: int = 10000,
-        inital_states=None,
+        initial_states=None,
         ansatz: Ansatz = Ansatz.ParticleConservingU1,
         layers: int = 1,
         k: int = 1,
@@ -238,7 +238,7 @@ class VQECASSCF(mc1step.CASSCF):
             optimizer=optimizer,
             backend=backend,
             shots_per_iter=shots_per_iter,
-            inital_states=inital_states,
+            initial_states=initial_states,
             ansatz=ansatz,
             layers=layers,
             k=k,
