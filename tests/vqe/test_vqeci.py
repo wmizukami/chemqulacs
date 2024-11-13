@@ -13,7 +13,6 @@ from typing import Any
 
 import numpy as np
 import pytest
-import quri_parts
 from openfermion import InteractionOperator, MolecularData
 from openfermionpyscf import run_pyscf
 from pyscf import gto

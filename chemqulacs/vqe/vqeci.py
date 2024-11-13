@@ -16,7 +16,6 @@ from math import comb
 from typing import Mapping, Optional, Sequence
 
 import numpy as np
-import quri_parts
 from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
