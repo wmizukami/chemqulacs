@@ -8,12 +8,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from importlib.metadata import version
 from typing import Any
 
 import numpy as np
 import pytest
 import quri_parts
-from importlib.metadata import version
 from openfermion import InteractionOperator, MolecularData
 from openfermionpyscf import run_pyscf
 from pyscf import gto

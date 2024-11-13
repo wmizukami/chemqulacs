@@ -10,10 +10,10 @@
 
 # type:ignore
 from enum import Enum, auto
+from importlib.metadata import version
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
-from importlib.metadata import version
 import numpy as np
 import quri_parts
 from braket.aws import AwsDevice
