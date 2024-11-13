@@ -14,6 +14,7 @@ from importlib.metadata import version
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
+
 import numpy as np
 import quri_parts
 from braket.aws import AwsDevice
