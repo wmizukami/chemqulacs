@@ -30,6 +30,7 @@ from quri_parts.chem.ansatz import (
     ParticleConservingU1,
     ParticleConservingU2,
 )
+import quri_parts
 from quri_parts.circuit import LinearMappedUnboundParametricQuantumCircuit
 from quri_parts.core.estimator import (
     ConcurrentParametricQuantumEstimator,
@@ -61,6 +62,8 @@ from quri_parts.qulacs.estimator import (
     create_qulacs_vector_concurrent_estimator,
     create_qulacs_vector_concurrent_parametric_estimator,
 )
+
+from quri_parts.qiskit.backend import QiskitSamplingBackend
 
 from chemqulacs.vqe.rdm import get_1rdm, get_2rdm
 
@@ -128,9 +131,21 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        service = QiskitRuntimeService()
-        backend = service.least_busy(operational=True, simulator=False)
-        self.sampler = Sampler(backend)
+        if quri_parts.__version__ >= "0.19.0":
+            service = QiskitRuntimeService()
+            backend = service.least_busy(operational=True, simulator=False)
+            self.sampler = Sampler(backend)
+        else:
+            from qiskit import IBMQ
+            IBMQ.load_account()
+            provider = IBMQ.get_provider(hub, group, project)
+            device = provider.get_backend(backend_name)
+            sampling_backend = QiskitSamplingBackend(
+                device, qubit_mapping=qubit_mapping, **run_kwargs
+            )
+            self.sampler = create_concurrent_sampler_from_sampling_backend(
+                sampling_backend
+            )
 
 
 class Ansatz(Enum):
@@ -292,15 +307,26 @@ def _create_ansatz(
             singlet_excitation,
         )
     elif ansatz == Ansatz.KUpCCGSD:
-        return KUpCCGSD(
-            n_sorbs,
-            # n_electrons,
-            k,
-            fermion_qubit_mapping,
-            trotter_number,
-            delta_sz,
-            singlet_excitation,
-        )
+        if quri_parts.__version__ >= "0.19.0":
+            return KUpCCGSD(
+                n_sorbs,
+                # n_electrons,
+                k,
+                fermion_qubit_mapping,
+                trotter_number,
+                delta_sz,
+                singlet_excitation,
+            )
+        else:
+            return KUpCCGSD(
+                n_sorbs,
+                n_electrons,
+                k,
+                fermion_qubit_mapping,
+                trotter_number,
+                delta_sz,
+                singlet_excitation,
+            )
 
 
 def vqe(init_params, cost_fn, grad_fn, optimizer):

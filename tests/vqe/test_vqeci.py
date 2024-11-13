@@ -15,6 +15,8 @@ import pytest
 from openfermion import InteractionOperator, MolecularData
 from openfermionpyscf import run_pyscf
 from pyscf import gto
+
+import quri_parts
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.chem.ansatz import (
     AllSinglesDoubles,
@@ -337,7 +339,10 @@ def test_make_rdm12():
 
 def test_make_dm2():
     vqe_ci = vqeci()
-    dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
+    if quri_parts.__version__ >= "0.19.0":
+        dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
+    else: 
+        dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
     expected = np.array(
         [
             [
@@ -376,7 +381,10 @@ def test_make_dm2():
             0,
         )
     ]
-    dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
+    if quri_parts.__version__ >= "0.19.0":
+        dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, 2)
+    else: 
+        dm2 = vqe_ci.make_dm2(None, vqe_ci.n_orbitals, [2, 2])
     expected = np.array(
         [
             [
