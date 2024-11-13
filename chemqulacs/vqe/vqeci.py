@@ -137,6 +137,7 @@ class QiskitBackend(Backend):
             self.sampler = Sampler(backend)
         else:
             from qiskit import IBMQ
+
             IBMQ.load_account()
             provider = IBMQ.get_provider(hub, group, project)
             device = provider.get_backend(backend_name)
