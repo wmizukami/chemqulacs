@@ -55,7 +55,7 @@ The default options for VQE are as follows:
 You can change those options via arguments for `VQECASCI` and `VQECASSCF` objects, which are then passed to `VQECI` objects. Please see [`chemqulacs.vqe.vqeci` module](https://wmizukami.github.io/chemqulacs/chemqulacs.vqe.vqeci.html) for more details.
 
 
-You can also change number of excited states to calculate.
+You can also change number of excited states to calculate. SSVQE is used for excited-state calculations by the VQECASCI and VQECASSCF classes
 ```python
 from pyscf import gto, scf
 from chemqulacs.util import utils
