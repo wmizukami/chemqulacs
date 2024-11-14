@@ -16,6 +16,7 @@ numpy = "^1.22.3"
 pubchempy = "^1.0.4"
 scipy = "~1.13.1"
 
+[tool.poetry.dependencies]
 quri-parts-algo = "^0.19.0"
 quri-parts-braket = "^0.19.0"
 quri-parts-chem = "^0.19.0"
@@ -25,7 +26,20 @@ quri-parts-itensor = "^0.19.0"
 quri-parts-qulacs = "^0.19.0"
 quri-parts-openfermion = "^0.19.0"
 quri-parts-qiskit = "^0.19.0"
-qiskit-ibm-runtime = "^0.22.0"
+qiskit-ibm-runtime = { version = ">=0.22.0", markers = "quri-parts-algo >= 0.19.0" }
+
+[tool.poetry.extras]
+quri-parts-0-14-0 = [
+    "quri-parts-algo >=0.14.0, <0.15.0",
+    "quri-parts-braket >=0.14.0, <0.15.0",
+    "quri-parts-chem >=0.14.0, <0.15.0",
+    "quri-parts-core >=0.14.0, <0.15.0",
+    "quri-parts-circuit >=0.14.0, <0.15.0",
+    "quri-parts-itensor >=0.14.0, <0.15.0",
+    "quri-parts-qulacs >=0.14.0, <0.15.0",
+    "quri-parts-openfermion >=0.14.0, <0.15.0",
+    "quri-parts-qiskit >=0.14.0, <0.15.0"
+]
 
 
 [tool.poetry.group.dev.dependencies]
