@@ -9,6 +9,7 @@
 # limitations under the License.
 
 from importlib.metadata import version
+
 import numpy as np
 from quri_parts.core.state import ComputationalBasisState
 from quri_parts.openfermion.transforms import (
