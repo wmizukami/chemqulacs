@@ -131,7 +131,7 @@ class QiskitBackend(Backend):
         if version("quri-parts-qiskit") >= "0.19.0":
             from qiskit_ibm_runtime import QiskitRuntimeService
             from qiskit_ibm_runtime import SamplerV2 as Sampler
-            
+
             service = QiskitRuntimeService()
             backend = service.least_busy(operational=True, simulator=False)
             self.sampler = Sampler(backend)
