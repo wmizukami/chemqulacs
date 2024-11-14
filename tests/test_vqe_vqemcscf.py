@@ -116,4 +116,3 @@ def test_vqecasscf_h2o_2e_2o():
     refmc.mc2step()
 
     assert utils.almost_equal(mc.e_tot, refmc.e_tot)
-
