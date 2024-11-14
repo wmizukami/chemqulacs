@@ -128,6 +128,9 @@ qse.solve()
 ```
 git clone https://github.com/wmizukami/chemqulacs
 cd chemqulacs
+# If quri_parts 0.14 should be used:
+    cp pyproject.14.toml pyproject.toml
+    cp poetry.14.lock poetry.lock
 poetry install
 poetry run pytest
 ```
