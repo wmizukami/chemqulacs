@@ -31,7 +31,7 @@ def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
             1-RDM
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
-    if version("quri-parts-qiskit") >= "0.19.0":
+    if version("quri-parts-openfermion") >= "0.19.0":
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
             n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
         )
@@ -72,7 +72,7 @@ def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons):
             2-RDM
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
-    if version("quri-parts-qiskit") >= "0.19.0":
+    if version("quri-parts-openfermion") >= "0.19.0":
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
             n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
         )
