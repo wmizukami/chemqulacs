@@ -46,8 +46,8 @@ def test_vqecasci_h2o_2e_2o():
 
 def test_ssvqecasci_h2o_2e_2o():
 
-    n_electrons = 2
     n_orbitals = 2
+    n_electrons = 2
     excitation_number = 5
 
     # Generate initial states
@@ -69,8 +69,8 @@ def test_ssvqecasci_h2o_2e_2o():
 
     mc = vqemcscf.VQECASCI(
         mf,
-        n_electrons,
         n_orbitals,
+        n_electrons,
         optimizer=LBFGS(),
         initial_states=initial_states,
         ansatz=Ansatz.GateFabric,
@@ -117,5 +117,3 @@ def test_vqecasscf_h2o_2e_2o():
 
     assert utils.almost_equal(mc.e_tot, refmc.e_tot)
 
-
-test_ssvqecasci_h2o_2e_2o()
