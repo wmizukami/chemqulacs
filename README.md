@@ -55,11 +55,13 @@ The default options for VQE are as follows:
 You can change those options via arguments for `VQECASCI` and `VQECASSCF` objects, which are then passed to `VQECI` objects. Please see [`chemqulacs.vqe.vqeci` module](https://wmizukami.github.io/chemqulacs/chemqulacs.vqe.vqeci.html) for more details.
 
 
-You can also change number of excited states to calculate.
+You can also change number of excited states to calculate. SSVQE is used for excited-state calculations by the VQECASCI and VQECASSCF classes.
 ```python
 from pyscf import gto, scf
 from chemqulacs.util import utils
 from chemqulacs.vqe.vqemcscf import VQECASCI, VQECASSCF
+from chemqulacs.vqe.vqeci import Ansatz
+from quri_parts.algo.optimizer import LBFGS
 
 # Retrieve geometry of a water molecule from PubChem
 geom_water = utils.get_geometry_from_pubchem("water")
@@ -70,8 +72,7 @@ mf = scf.RHF(mol)
 mf.run()
 
 # Run CASCI with VQE with CAS(2e, 2o)
-vqe_casci = VQECASCI(mf, 2, 2)
-vqe_casci.fcisolver.nroots = 5
+vqe_casci = VQECASCI(mf, 2, 2, optimizer=LBFGS(), ansatz=Ansatz.GateFabric, layers=2, excitation_number=5)
 vqe_casci.kernel()
 print(f"VQE-CASCI Energis: {vqe_casci.fcisolver.energies}")
 
@@ -84,8 +85,7 @@ vqe_casci.print_energies()
 #     S3      -74.528864      11.8528                 1 -> 3
 
 # Run CASSCF with VQE with CAS(2e, 2o)
-vqe_casscf = VQECASSCF(mf, 2, 2)
-vqe_casci.fcisolver.nroots = 5
+vqe_casscf = VQECASSCF(mf, 2, 2, optimizer=LBFGS(), ansatz=Ansatz.GateFabric, layers=2, excitation_number=5)
 vqe_casscf.kernel()
 print(f"VQE-CASSCF Energis: {vqe_casci.fcisolver.energies}")
 vqe_casscf.print_energies()
