@@ -61,7 +61,7 @@ class QSE(object):
     def build_H(self):
         noperators = len(self.e_op)
         op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
-            self.vqeci.n_electron, self.vqeci.n_qubit
+            n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
         )
         self.hamiltonian = np.zeros(
             (noperators + 1, noperators + 1), dtype=np.complex128
@@ -85,7 +85,7 @@ class QSE(object):
     def build_S(self):
         noperators = len(self.e_op)
         op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
-            self.vqeci.n_electron, self.vqeci.n_qubit
+            n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
         )
         self.S = np.zeros((noperators + 1, noperators + 1), dtype=np.complex128)
         self.S[0, 0] = 1.0

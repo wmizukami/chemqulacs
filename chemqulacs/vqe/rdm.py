@@ -7,7 +7,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from importlib.metadata import version
 from itertools import product
 
 import numpy as np
@@ -31,9 +31,14 @@ def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
             1-RDM
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
-    op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons
-    )
+    if version("quri-parts-openfermion") >= "0.19.0":
+        op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
+        )
+    else:
+        op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons
+        )
     ret = np.zeros((_n_spin_orbitals, _n_spin_orbitals), dtype=np.complex128)
     ops_est = []
     for i in range(_n_spin_orbitals):
@@ -67,9 +72,14 @@ def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons):
             2-RDM
     """
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
-    op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-        n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons
-    )
+    if version("quri-parts-openfermion") >= "0.19.0":
+        op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
+        )
+    else:
+        op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons
+        )
     ret = np.zeros(
         (_n_spin_orbitals, _n_spin_orbitals, _n_spin_orbitals, _n_spin_orbitals),
         dtype=np.complex128,

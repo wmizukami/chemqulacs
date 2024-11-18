@@ -8,6 +8,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from importlib.metadata import version
+
 import numpy as np
 from quri_parts.core.state import ComputationalBasisState
 from quri_parts.openfermion.transforms import (
@@ -29,7 +31,14 @@ def test_get_1rdm():
     estimator = create_qulacs_vector_concurrent_estimator()
 
     jw_mapping = jordan_wigner
-    state_mapper = jw_mapping.get_state_mapper(n_sorbs, n_electrons)
+    if version("quri-parts-openfermion") >= "0.19.0":
+        state_mapper = jw_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons, sz=0
+        )
+    else:
+        state_mapper = jw_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons
+        )
     jw_state = state_mapper(occupied_indices)
     jw_1rdm = get_1rdm(jw_state, jw_mapping, estimator, n_electrons)
     assert np.allclose(
@@ -38,7 +47,15 @@ def test_get_1rdm():
     )
 
     bk_mapping = bravyi_kitaev
-    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+    if version("quri-parts-openfermion") >= "0.19.0":
+        state_mapper = bk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons, sz=0
+        )
+    else:
+        state_mapper = bk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons
+        )
     bk_state = state_mapper(occupied_indices)
     assert np.allclose(
         jw_1rdm,
@@ -46,7 +63,15 @@ def test_get_1rdm():
     )
 
     scbk_mapping = symmetry_conserving_bravyi_kitaev
-    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+    if version("quri-parts-openfermion") >= "0.19.0":
+        state_mapper = scbk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons, sz=0
+        )
+    else:
+        state_mapper = scbk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons
+        )
     scbk_state = state_mapper(occupied_indices)
     assert np.allclose(
         jw_1rdm,
@@ -97,13 +122,29 @@ def test_get_2rdm():
     assert np.allclose(jw_2rdm, expected)
 
     bk_mapping = bravyi_kitaev
-    state_mapper = bk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+    if version("quri-parts-openfermion") >= "0.19.0":
+        state_mapper = bk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons, sz=0
+        )
+    else:
+        state_mapper = bk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons
+        )
     occupied_indices = [0, 1]
     bk_state = state_mapper(occupied_indices)
     assert np.allclose(jw_2rdm, get_2rdm(bk_state, bk_mapping, estimator, n_electrons))
 
     scbk_mapping = symmetry_conserving_bravyi_kitaev
-    state_mapper = scbk_mapping.get_state_mapper(n_sorbs, n_electrons)
+
+    if version("quri-parts-openfermion") >= "0.19.0":
+        state_mapper = scbk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons, sz=0
+        )
+    else:
+        state_mapper = scbk_mapping.get_state_mapper(
+            n_spin_orbitals=n_sorbs, n_fermions=n_electrons
+        )
     occupied_indices = [0, 1]
     scbk_state = state_mapper(occupied_indices)
     assert np.allclose(

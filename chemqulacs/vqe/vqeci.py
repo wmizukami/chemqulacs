@@ -10,6 +10,7 @@
 
 # type:ignore
 from enum import Enum, auto
+from importlib.metadata import version
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
@@ -19,7 +20,6 @@ from braket.aws import AwsDevice
 from openfermion.ops import FermionOperator, InteractionOperator
 from openfermion.transforms import get_fermion_operator
 from pyscf import ao2mo
-from qiskit import IBMQ
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
@@ -128,13 +128,25 @@ class QiskitBackend(Backend):
         qubit_mapping: Optional[Mapping[int, int]] = None,
         **run_kwargs,
     ):
-        IBMQ.load_account()
-        provider = IBMQ.get_provider(hub, group, project)
-        device = provider.get_backend(backend_name)
-        sampling_backend = QiskitSamplingBackend(
-            device, qubit_mapping=qubit_mapping, **run_kwargs
-        )
-        self.sampler = create_concurrent_sampler_from_sampling_backend(sampling_backend)
+        if version("quri-parts-qiskit") >= "0.19.0":
+            from qiskit_ibm_runtime import QiskitRuntimeService
+            from qiskit_ibm_runtime import SamplerV2 as Sampler
+
+            service = QiskitRuntimeService()
+            backend = service.least_busy(operational=True, simulator=False)
+            self.sampler = Sampler(backend)
+        else:
+            from qiskit import IBMQ
+
+            IBMQ.load_account()
+            provider = IBMQ.get_provider(hub, group, project)
+            device = provider.get_backend(backend_name)
+            sampling_backend = QiskitSamplingBackend(
+                device, qubit_mapping=qubit_mapping, **run_kwargs
+            )
+            self.sampler = create_concurrent_sampler_from_sampling_backend(
+                sampling_backend
+            )
 
 
 class Ansatz(Enum):
@@ -296,15 +308,26 @@ def _create_ansatz(
             singlet_excitation,
         )
     elif ansatz == Ansatz.KUpCCGSD:
-        return KUpCCGSD(
-            n_sorbs,
-            n_electrons,
-            k,
-            fermion_qubit_mapping,
-            trotter_number,
-            delta_sz,
-            singlet_excitation,
-        )
+        if version("quri-parts-openfermion") >= "0.19.0":
+            return KUpCCGSD(
+                n_sorbs,
+                # n_electrons,
+                k,
+                fermion_qubit_mapping,
+                trotter_number,
+                delta_sz,
+                singlet_excitation,
+            )
+        else:
+            return KUpCCGSD(
+                n_sorbs,
+                n_electrons,
+                k,
+                fermion_qubit_mapping,
+                trotter_number,
+                delta_sz,
+                singlet_excitation,
+            )
 
 
 def vqe(init_params, cost_fn, grad_fn, optimizer):
