@@ -9,12 +9,13 @@
 # limitations under the License.
 
 # type:ignore
+import warnings
+
 from enum import Enum, auto
 from importlib.metadata import version
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
-import warnings
 
 import numpy as np
 from braket.aws import AwsDevice
