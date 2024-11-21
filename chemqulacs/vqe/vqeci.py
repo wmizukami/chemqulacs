@@ -345,10 +345,7 @@ def vqe(init_params, cost_fn, grad_fn, optimizer):
 
 
 def generate_initial_states(
-    n_orbitals,
-    n_electron,
-    excitation_number=0,
-    fermion_qubit_mapping=jordan_wigner
+    n_orbitals, n_electron, excitation_number=0, fermion_qubit_mapping=jordan_wigner
 ):
 
     warnings.warn(
