@@ -96,6 +96,8 @@ class VQECASCI(casci.CASCI):
                 If ``True``, the optional constant gate is inserted. Used for ``GateFabric``.
             use_singles: (bool):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
+            sz (int):
+                Used for fermion_qubit_mapping. Spin along the z-axis of the state you want to transform.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
             singlet_excitation (bool):
@@ -128,6 +130,7 @@ class VQECASCI(casci.CASCI):
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
+        sz: int = 0,
         delta_sz: int = 0,
         singlet_excitation: bool = False,
         is_init_random: bool = False,
@@ -149,6 +152,7 @@ class VQECASCI(casci.CASCI):
             weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
+            sz=sz,
             delta_sz=delta_sz,
             singlet_excitation=singlet_excitation,
             is_init_random=is_init_random,
@@ -193,6 +197,8 @@ class VQECASSCF(mc1step.CASSCF):
                 If ``True``, the optional constant gate is inserted. Used for ``GateFabric``.
             use_singles: (bool):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
+            sz (int):
+                Used for fermion_qubit_mapping. Spin along the z-axis of the state you want to transform.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
             singlet_excitation (bool):
@@ -226,6 +232,7 @@ class VQECASSCF(mc1step.CASSCF):
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
+        sz: int = 0,
         delta_sz: int = 0,
         singlet_excitation: bool = False,
         is_init_random: bool = False,
@@ -247,6 +254,7 @@ class VQECASSCF(mc1step.CASSCF):
             weight_policy=weight_policy,
             include_pi=include_pi,
             use_singles=use_singles,
+            sz=sz,
             delta_sz=delta_sz,
             singlet_excitation=singlet_excitation,
             is_init_random=is_init_random,
