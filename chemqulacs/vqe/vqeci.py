@@ -351,7 +351,9 @@ def generate_initial_states(
     fermion_qubit_mapping=jordan_wigner
 ):
     
-    warnings.warn("The function generate_initial_states for SSVQE only performs correctly for fermion_qubit_mapping=jordan_wigner. ")
+    warnings.warn(
+        "The function generate_initial_states for SSVQE only performs correctly for fermion_qubit_mapping=jordan_wigner. "
+    )
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
             break
