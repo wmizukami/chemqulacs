@@ -14,6 +14,7 @@ from importlib.metadata import version
 from itertools import combinations, product
 from math import comb
 from typing import Mapping, Optional, Sequence
+import warnings
 
 import numpy as np
 from braket.aws import AwsDevice
@@ -347,9 +348,10 @@ def generate_initial_states(
     n_orbitals,
     n_electron,
     excitation_number=0,
-    fermion_qubit_mapping=jordan_wigner,
-    sz=0,
+    fermion_qubit_mapping=jordan_wigner
 ):
+    
+    warnings.warn("The function generate_initial_states for SSVQE only performs correctly for fermion_qubit_mapping=jordan_wigner. ")
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
             break
@@ -363,7 +365,7 @@ def generate_initial_states(
 
     if version("quri-parts-openfermion") >= "0.19.0":
         state_mapper = fermion_qubit_mapping.get_state_mapper(
-            n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron, sz=sz
+            n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
         )
     else:
         state_mapper = fermion_qubit_mapping.get_state_mapper(
