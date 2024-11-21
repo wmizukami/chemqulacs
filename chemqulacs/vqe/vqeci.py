@@ -350,7 +350,7 @@ def generate_initial_states(
     excitation_number=0,
     fermion_qubit_mapping=jordan_wigner
 ):
-    
+
     warnings.warn(
         "The function generate_initial_states for SSVQE only performs correctly for fermion_qubit_mapping=jordan_wigner. "
     )
