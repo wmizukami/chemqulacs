@@ -9,7 +9,7 @@
 # limitations under the License.
 
 from functools import reduce
-
+from importlib.metadata import version
 import numpy as np
 from openfermion.ops import FermionOperator
 from openfermion.utils import hermitian_conjugated
@@ -60,9 +60,16 @@ class QSE(object):
 
     def build_H(self):
         noperators = len(self.e_op)
-        op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
-            n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
-        )
+        if version("quri-parts-openfermion") >= "0.19.0":
+            op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
+                n_spin_orbitals=self.vqeci.n_qubit,
+                n_fermions=self.vqeci.n_electron,
+                sz=self.vqeci.sz,
+            )
+        else:
+            op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
+                n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
+            )
         self.hamiltonian = np.zeros(
             (noperators + 1, noperators + 1), dtype=np.complex128
         )
@@ -84,9 +91,16 @@ class QSE(object):
 
     def build_S(self):
         noperators = len(self.e_op)
-        op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
-            n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
-        )
+        if version("quri-parts-openfermion") >= "0.19.0":
+            op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
+                n_spin_orbitals=self.vqeci.n_qubit,
+                n_fermions=self.vqeci.n_electron,
+                sz=self.vqeci.sz,
+            )
+        else:
+            op_mapper = self.vqeci.fermion_qubit_mapping.get_of_operator_mapper(
+                n_spin_orbitals=self.vqeci.n_qubit, n_fermions=self.vqeci.n_electron
+            )
         self.S = np.zeros((noperators + 1, noperators + 1), dtype=np.complex128)
         self.S[0, 0] = 1.0
         for idx, iop in enumerate(self.e_op, 1):
