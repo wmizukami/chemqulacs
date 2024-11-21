@@ -10,6 +10,7 @@
 
 from functools import reduce
 from importlib.metadata import version
+
 import numpy as np
 from openfermion.ops import FermionOperator
 from openfermion.utils import hermitian_conjugated
