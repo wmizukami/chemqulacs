@@ -497,7 +497,6 @@ class VQECI(object):
                 self.n_electron,
                 self.excitation_number,
                 self.fermion_qubit_mapping,
-                self.sz,
             )
         if not isinstance(self.initial_states, list):
             raise TypeError("Initial_states must be of type list.")
