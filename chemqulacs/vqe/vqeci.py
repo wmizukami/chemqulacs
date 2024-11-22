@@ -24,6 +24,7 @@ from pyscf import ao2mo
 from quri_parts.algo.ansatz import HardwareEfficient, SymmetryPreserving
 from quri_parts.algo.optimizer import Adam, OptimizerStatus
 from quri_parts.braket.backend import BraketSamplingBackend
+from quri_parts.chem.utils.spin import occupation_state_sz
 from quri_parts.chem.ansatz import (
     AllSinglesDoubles,
     GateFabric,
@@ -349,7 +350,8 @@ def generate_initial_states(
 ):
 
     warnings.warn(
-        "The function generate_initial_states for SSVQE only performs correctly for fermion_qubit_mapping=jordan_wigner. "
+        "The function generate_initial_states for VQE "
+        "If SSVQE is performed we only performs correctly for fermion_qubit_mapping=jordan_wigner. "
     )
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
@@ -362,15 +364,21 @@ def generate_initial_states(
         key=lambda lst: sum([2**a for a in lst]),
     )[: excitation_number + 1]
 
-    if version("quri-parts-openfermion") >= "0.19.0":
-        state_mapper = fermion_qubit_mapping.get_state_mapper(
-            n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
+    initial_states = []
+    for occupied_indices in occ_indices_lst:
+        sz = occupation_state_sz(occupied_indices)
+
+        if version("quri-parts-openfermion") >= "0.19.0":
+            state_mapper = fermion_qubit_mapping.get_state_mapper(
+                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron, sz = sz
+            )
+        else:
+            warnings.warn("SSVQE with Quri_parts < 0.19.0 is not tested.")
+            state_mapper = fermion_qubit_mapping.get_state_mapper(
+                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
         )
-    else:
-        state_mapper = fermion_qubit_mapping.get_state_mapper(
-            n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
-        )
-    return [state_mapper(x) for x in occ_indices_lst]
+        initial_states.append(state_mapper(occupied_indices))
+    return initial_states
 
 
 # ======================
