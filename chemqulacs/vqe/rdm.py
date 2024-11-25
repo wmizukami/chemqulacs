@@ -14,7 +14,7 @@ import numpy as np
 from openfermion.ops import FermionOperator
 
 
-def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
+def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons, sz=0):
     """
     Compute 1-RDM of a given state with user specfied fermion to qubit mapping.
 
@@ -33,7 +33,7 @@ def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
     if version("quri-parts-openfermion") >= "0.19.0":
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=sz
         )
     else:
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
@@ -56,7 +56,7 @@ def get_1rdm(state, fermion_qubit_mapping, estimator, n_electrons):
     return ret
 
 
-def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons):
+def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons, sz=0):
     """
     Compute 2-RDM of a given state with user specfied fermion to qubit mapping.
 
@@ -74,7 +74,7 @@ def get_2rdm(state, fermion_qubit_mapping, estimator, n_electrons):
     _n_spin_orbitals = fermion_qubit_mapping.n_spin_orbitals(state.qubit_count)
     if version("quri-parts-openfermion") >= "0.19.0":
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(
-            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=0
+            n_spin_orbitals=_n_spin_orbitals, n_fermions=n_electrons, sz=sz
         )
     else:
         op_mapper = fermion_qubit_mapping.get_of_operator_mapper(

@@ -216,9 +216,7 @@ def _get_active_hamiltonian(h1, h2, norb, ecore):
     return active_hamiltonian
 
 
-def _create_concurrent_estimators(
-    backend: Backend, shots_per_iter: int
-) -> tuple[
+def _create_concurrent_estimators(backend: Backend, shots_per_iter: int) -> tuple[
     ConcurrentQuantumEstimator[CircuitQuantumState],
     ConcurrentParametricQuantumEstimator[ParametricCircuitQuantumState],
 ]:
@@ -350,8 +348,8 @@ def generate_initial_states(
 ):
 
     warnings.warn(
-        "The function generate_initial_states for VQE "
-        "If SSVQE is performed we only performs correctly for fermion_qubit_mapping=jordan_wigner. "
+        "The function generates initial states for VQE and SSVQE"
+        "If SSVQE is performed generate_initial_states only performs correctly for fermion_qubit_mapping=jordan_wigner. "
     )
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
@@ -370,13 +368,13 @@ def generate_initial_states(
 
         if version("quri-parts-openfermion") >= "0.19.0":
             state_mapper = fermion_qubit_mapping.get_state_mapper(
-                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron, sz = sz
+                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron, sz=sz
             )
         else:
             warnings.warn("SSVQE with Quri_parts < 0.19.0 is not tested.")
             state_mapper = fermion_qubit_mapping.get_state_mapper(
                 n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
-        )
+            )
         initial_states.append(state_mapper(occupied_indices))
     return initial_states
 
@@ -609,32 +607,27 @@ class VQECI(object):
         return self.energies[0], None
 
     # ======================
-    def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
+    def make_rdm1(self, _, norb, nelec, link_index=None, sz=0, **kwargs):
         nelec = sum(nelec)
-        dm1 = self._one_rdm(self.opt_states[0], norb, nelec)
+        dm1 = self._one_rdm(self.opt_states[0], norb, nelec, sz)
         return dm1
 
     # ======================
-    def make_rdm12(self, _, norb, nelec, link_index=None, **kwargs):
+    def make_rdm12(self, _, norb, nelec, link_index=None, sz=0, **kwargs):
         nelec = sum(nelec)
         dm2 = self._two_rdm(self.opt_states[0], norb, nelec)
-        return self._one_rdm(self.opt_states[0], norb, nelec), dm2
+        return self._one_rdm(self.opt_states[0], norb, nelec, sz), dm2
 
     # ======================
     def spin_square(self, civec, norb, nelec):
         return 0, 1
 
     # ======================
-    def _one_rdm(self, state, norb, nelec):
+    def _one_rdm(self, state, norb, nelec, sz=0):
         vqe_one_rdm = np.zeros((norb, norb))
         # get 1 rdm
         spin_dependent_rdm = np.real(
-            get_1rdm(
-                state,
-                self.fermion_qubit_mapping,
-                self.estimator,
-                nelec,
-            )
+            get_1rdm(state, self.fermion_qubit_mapping, self.estimator, nelec, sz)
         )
         # transform it to spatial rdm
         vqe_one_rdm += spin_dependent_rdm[::2, ::2] + spin_dependent_rdm[1::2, 1::2]
