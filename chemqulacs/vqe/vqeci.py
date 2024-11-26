@@ -380,6 +380,7 @@ def generate_initial_states(
         initial_states.append(state_mapper(occupied_indices))
     return initial_states
 
+
 # ======================
 class VQECI(object):
     """
