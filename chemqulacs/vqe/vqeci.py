@@ -9,6 +9,7 @@
 # limitations under the License.
 
 # type:ignore
+import warnings
 from enum import Enum, auto
 from importlib.metadata import version
 from itertools import combinations, product
@@ -29,6 +30,7 @@ from quri_parts.chem.ansatz import (
     ParticleConservingU1,
     ParticleConservingU2,
 )
+from quri_parts.chem.utils.spin import occupation_state_sz
 from quri_parts.circuit import LinearMappedUnboundParametricQuantumCircuit
 from quri_parts.core.estimator import (
     ConcurrentParametricQuantumEstimator,
@@ -346,6 +348,12 @@ def vqe(init_params, cost_fn, grad_fn, optimizer):
 def generate_initial_states(
     n_orbitals, n_electron, excitation_number=0, fermion_qubit_mapping=jordan_wigner
 ):
+
+    warnings.warn(
+        "The function generates initial states for VQE and SSVQE"
+        "If SSVQE is performed generate_initial_states only performs correctly for fermion_qubit_mapping=jordan_wigner. "
+    )
+
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
             break
@@ -357,8 +365,21 @@ def generate_initial_states(
         key=lambda lst: sum([2**a for a in lst]),
     )[: excitation_number + 1]
 
-    state_mapper = fermion_qubit_mapping.get_state_mapper(2 * n_orbitals, n_electron)
-    return [state_mapper(x) for x in occ_indices_lst]
+    initial_states = []
+    for occupied_indices in occ_indices_lst:
+        sz = occupation_state_sz(occupied_indices)
+
+        if version("quri-parts-openfermion") >= "0.19.0":
+            state_mapper = fermion_qubit_mapping.get_state_mapper(
+                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron, sz=sz
+            )
+        else:
+            warnings.warn("SSVQE with Quri_parts < 0.19.0 is not tested.")
+            state_mapper = fermion_qubit_mapping.get_state_mapper(
+                n_spin_orbitals=2 * n_orbitals, n_fermions=n_electron
+            )
+        initial_states.append(state_mapper(occupied_indices))
+    return initial_states
 
 
 # ======================
@@ -422,7 +443,6 @@ class VQECI(object):
         self.mol = mol
         self.fermion_qubit_mapping = fermion_qubit_mapping
         self.opt_param = None  # to be used to store the optimal parameter for the VQE
-        self.initial_states: list = [None]
         self.opt_states: list = [None]
         self.n_qubit: int = None
         self.n_orbitals: int = None
@@ -578,32 +598,27 @@ class VQECI(object):
         return self.energies[0], None
 
     # ======================
-    def make_rdm1(self, _, norb, nelec, link_index=None, **kwargs):
+    def make_rdm1(self, _, norb, nelec, link_index=None, sz=0, **kwargs):
         nelec = sum(nelec)
-        dm1 = self._one_rdm(self.opt_states[0], norb, nelec)
+        dm1 = self._one_rdm(self.opt_states[0], norb, nelec, sz)
         return dm1
 
     # ======================
-    def make_rdm12(self, _, norb, nelec, link_index=None, **kwargs):
+    def make_rdm12(self, _, norb, nelec, link_index=None, sz=0, **kwargs):
         nelec = sum(nelec)
         dm2 = self._two_rdm(self.opt_states[0], norb, nelec)
-        return self._one_rdm(self.opt_states[0], norb, nelec), dm2
+        return self._one_rdm(self.opt_states[0], norb, nelec, sz), dm2
 
     # ======================
     def spin_square(self, civec, norb, nelec):
         return 0, 1
 
     # ======================
-    def _one_rdm(self, state, norb, nelec):
+    def _one_rdm(self, state, norb, nelec, sz=0):
         vqe_one_rdm = np.zeros((norb, norb))
         # get 1 rdm
         spin_dependent_rdm = np.real(
-            get_1rdm(
-                state,
-                self.fermion_qubit_mapping,
-                self.estimator,
-                nelec,
-            )
+            get_1rdm(state, self.fermion_qubit_mapping, self.estimator, nelec, sz)
         )
         # transform it to spatial rdm
         vqe_one_rdm += spin_dependent_rdm[::2, ::2] + spin_dependent_rdm[1::2, 1::2]
