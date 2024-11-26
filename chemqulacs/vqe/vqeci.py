@@ -9,7 +9,6 @@
 # limitations under the License.
 
 # type:ignore
-import warnings
 from enum import Enum, auto
 from importlib.metadata import version
 from itertools import combinations, product
@@ -353,6 +352,7 @@ def generate_initial_states(
         "The function generates initial states for VQE and SSVQE"
         "If SSVQE is performed generate_initial_states only performs correctly for fermion_qubit_mapping=jordan_wigner. "
     )
+
     for m in range(n_electron, 2 * n_electron + 1):
         if comb(m, n_electron) >= excitation_number + 1:
             break
@@ -380,7 +380,6 @@ def generate_initial_states(
         initial_states.append(state_mapper(occupied_indices))
     return initial_states
 
-
 # ======================
 class VQECI(object):
     """
@@ -405,8 +404,6 @@ class VQECI(object):
                 If ``True``, the optional constant gate is inserted. Used for ``GateFabric``.
             use_singles: (bool):
                 If ``True``, single-excitation gates are applied. Used for ``UCCSD``.
-            sz (int):
-                Used for fermion_qubit_mapping. Spin along the z-axis of the state you want to transform.
             delta_sz (int):
                 Changes of spin in the excitation. Used for ``KUpCCGSD``.
             singlet_excitation (bool):
@@ -436,7 +433,6 @@ class VQECI(object):
         weight_policy: str = "exponential",
         include_pi: bool = False,
         use_singles: bool = True,
-        sz: int = 0,
         delta_sz: int = 0,
         singlet_excitation: bool = False,
         is_init_random: bool = False,
@@ -457,7 +453,6 @@ class VQECI(object):
         self.trotter_number: int = trotter_number
         self.include_pi: bool = include_pi
         self.use_singles: bool = use_singles
-        self.sz: int = sz
         self.delta_sz: int = delta_sz
         self.singlet_excitation: bool = singlet_excitation
         self.is_init_random: bool = is_init_random
@@ -482,17 +477,10 @@ class VQECI(object):
         active_hamiltonian = _get_active_hamiltonian(h1, h2, norb, ecore)
         # Convert the Hamiltonian using `self.fermion_qubit_mapping`
         self.fermionic_hamiltonian = get_fermion_operator(active_hamiltonian)
-        if version("quri-parts-openfermion") >= "0.19.0":
-            op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
-                n_spin_orbitals=2 * self.n_orbitals,
-                n_fermions=self.n_electron,
-                sz=self.sz,
-            )
-        else:
-            op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
-                n_spin_orbitals=2 * self.n_orbitals, n_fermions=self.n_electron
-            )
-
+        op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=2 * self.n_orbitals,
+            n_fermions=self.n_electron,
+        )
         qubit_hamiltonian = op_mapper(
             self.fermionic_hamiltonian,
         )
@@ -637,15 +625,10 @@ class VQECI(object):
 
     # ======================
     def _dm2_elem(self, i, j, k, m, state, norb, nelec):
-        if version("quri-parts-openfermion") >= "0.19.0":
-            op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
-                n_spin_orbitals=2 * norb, n_fermions=nelec, sz=self.sz
-            )
-        else:
-            op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
-                n_spin_orbitals=2 * norb, n_fermions=nelec
-            )
-
+        op_mapper = self.fermion_qubit_mapping.get_of_operator_mapper(
+            n_spin_orbitals=2 * norb,
+            n_fermions=nelec,
+        )
         qubit_hamiltonian = op_mapper(
             FermionOperator(((i, 1), (j, 1), (k, 0), (m, 0))),
         )
